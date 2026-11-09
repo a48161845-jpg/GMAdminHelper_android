@@ -2,8 +2,11 @@ name: Build APK
 
 on:
 push:
-branches: [main, master]
-tags: ["v*"]
+branches:
+- main
+- master
+tags:
+- "v*"
 workflow_dispatch:
 
 permissions:
@@ -14,59 +17,34 @@ build:
 runs-on: ubuntu-latest
 
 steps:
-  # 1. Получение исходного кода
   - name: Checkout repository
     uses: actions/checkout@v4
 
-  # 2. Java 17
   - name: Setup Java
     uses: actions/setup-java@v4
     with:
       distribution: temurin
       java-version: "17"
 
-  # 3. Подготовка Android SDK
   - name: Prepare Android SDK
-    run: |
-      echo "ANDROID_HOME=$ANDROID_HOME"
+    uses: android-actions/setup-android@v4
+    with:
+      packages: |
+        platform-tools
+        platforms;android-34
+        build-tools;34.0.0
 
-      if [ -z "$ANDROID_HOME" ]; then
-        echo "ANDROID_HOME is not set"
-        exit 1
-      fi
-
-      SDKM="$(find "$ANDROID_HOME/cmdline-tools" -name sdkmanager -type f 2>/dev/null | sort -V | tail -n 1)"
-
-      if [ -z "$SDKM" ]; then
-        echo "sdkmanager not found"
-        exit 1
-      fi
-
-      echo "Using sdkmanager: $SDKM"
-
-      yes | "$SDKM" --licenses || true
-
-      "$SDKM" \
-        "platform-tools" \
-        "platforms;android-34" \
-        "build-tools;34.0.0"
-
-      echo "Installed platforms:"
-      ls -la "$ANDROID_HOME/platforms"
-
-  # 4. Gradle 8.7
   - name: Setup Gradle
     uses: gradle/actions/setup-gradle@v4
     with:
       gradle-version: "8.7"
 
-  # 5. Загрузка моделей Tesseract
-  - name: Download Tesseract models (rus, eng)
+  - name: Download Tesseract models
     run: |
       mkdir -p app/src/main/assets/tessdata
 
       for l in rus eng; do
-        echo "Downloading $l.traineddata..."
+        echo "Downloading $l..."
 
         curl -fL \
           --retry 8 \
@@ -78,31 +56,22 @@ steps:
           "https://raw.githubusercontent.com/tesseract-ocr/tessdata_fast/main/$l.traineddata"
 
         test -s "app/src/main/assets/tessdata/$l.traineddata"
-
-        echo "$l downloaded successfully"
       done
 
-      echo "Tesseract models:"
       ls -lh app/src/main/assets/tessdata
 
-  # 6. Сборка APK
   - name: Build debug APK
     run: gradle assembleDebug --no-daemon --stacktrace
 
-  # 7. Проверка APK
   - name: Verify APK
     run: |
       APK="$(find app/build/outputs/apk/debug -name '*.apk' -type f | head -n 1)"
-
       if [ -z "$APK" ]; then
-        echo "APK was not generated!"
+        echo "APK not found!"
         exit 1
       fi
-
-      echo "APK successfully generated:"
       ls -lh "$APK"
 
-  # 8. Сохранение APK
   - name: Upload APK
     uses: actions/upload-artifact@v4
     with:
@@ -111,7 +80,6 @@ steps:
       if-no-files-found: error
       retention-days: 14
 
-  # 9. Публикация релиза при создании тега v*
   - name: Release on tag
     if: startsWith(github.ref, 'refs/tags/v')
     uses: softprops/action-gh-release@v2
