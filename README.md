@@ -8,7 +8,11 @@
 3. Вкладка **Actions** → **Build APK** → **Run workflow** (или просто сделай коммит).
 4. Через 5–10 минут открой завершённый запуск → внизу **Artifacts → GM-Admin-Helper-apk** → скачай, распакуй, поставь `app-debug.apk`.
 
+<<<<<<< HEAD
 Workflow устанавливает Android SDK platform 34 и Build Tools 34.0.0 через sdkmanager; модели Tesseract rus/eng скачиваются с повторными попытками.
+=======
+Android SDK берётся готовый с раннера GitHub (шаг `setup-android` убран — он падал на «Failed to find package 'tools'»).
+>>>>>>> 01860cd146f729221cdd69664d5d90c6ef881f81
 
 ## Настройка на телефоне (по порядку кнопок в приложении)
 1. «Поверх других приложений» → разрешить. 2. Включить клавиатуру GM Admin. 3. Выбрать её в чате игры.

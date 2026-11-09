@@ -158,7 +158,11 @@ class CaptureService : Service() {
             try {
                 val t = tess ?: return@execute
                 val pre = prepare(bmp); t.setImage(pre)
+<<<<<<< HEAD
                 val text = t.getUTF8Text() ?: ""
+=======
+                val text = t.utf8Text ?: ""
+>>>>>>> 01860cd146f729221cdd69664d5d90c6ef881f81
                 pre.recycle(); bmp.recycle()
                 h.post { handle(text) }
             } catch (e: Exception) { } finally { busy = false }
