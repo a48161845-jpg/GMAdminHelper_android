@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="ru"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<title>GM Admin Helper</title>
+<style>
+:root{--bg:#0e0e13;--s1:#15151d;--s2:#1c1c27;--s3:#252534;--bd:#2b2b3b;--tx:#ededf5;--mu:#8d8da3;--ac:#9b7bff;--ac2:#6c3df4;--ok:#22c55e;--no:#ef4444;--wr:#f59e0b;--bl:#3b82f6}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{color-scheme:dark}
+html,body{margin:0;background:var(--bg);color:var(--tx);font:14px/1.4 system-ui,-apple-system,Roboto,"Segoe UI",sans-serif}
+body{padding-top:env(safe-area-inset-top,0);padding-bottom:env(safe-area-inset-bottom,0)}
+main{max-width:860px;margin:0 auto;padding:8px 8px 22px}
+.hid{display:none!important}
+.mu{color:var(--mu);font-size:12.5px}
+small{color:var(--mu);font-size:11.5px}
+b{font-weight:650}
+
+/* кнопки и поля */
+button{font:inherit;color:var(--tx);background:var(--s3);border:0;border-radius:11px;padding:8px 13px;min-height:38px;cursor:pointer;transition:filter .12s,transform .08s}
+button:active{transform:scale(.96);filter:brightness(1.25)}
+button.pri{background:var(--ac2);font-weight:600}
+button.ok{background:#15803d;font-weight:600}
+button.no{background:#b91c1c;font-weight:600}
+button.gh{background:transparent;box-shadow:inset 0 0 0 1px var(--bd)}
+button.mini{padding:4px 10px;min-height:30px;font-size:12.5px;border-radius:9px}
+button:disabled{opacity:.45}
+input,textarea,select{font:inherit;color:var(--tx);background:var(--s2);border:1px solid var(--bd);border-radius:11px;padding:9px 11px;width:100%;min-height:38px;outline:none}
+input:focus,textarea:focus,select:focus{border-color:var(--ac)}
+textarea{min-height:84px;resize:vertical}
+input[type=checkbox]{width:20px;height:20px;min-height:0;accent-color:var(--ac2);flex:none}
+.row{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.row>input{flex:1;min-width:80px}
+.sp{flex:1}
+
+/* шапка */
+.hd{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:16px;background:linear-gradient(120deg,#4f27c9,#a43fe8);box-shadow:0 6px 18px rgba(108,61,244,.28)}
+.brand{display:flex;gap:10px;align-items:center;flex:1;min-width:0}
+.logo{font-size:24px;line-height:1}
+.brand b{display:block;font-size:16px;letter-spacing:.2px}
+.brand small{display:block;color:rgba(255,255,255,.78)}
+.lv{display:flex;align-items:center;gap:6px;font-size:12px;color:rgba(255,255,255,.85)}
+.lv select{width:auto;min-height:34px;padding:4px 8px;background:rgba(0,0,0,.28);border-color:transparent;color:#fff;border-radius:10px}
+
+/* счётчики */
+.cnts{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0 2px}
+.cn{background:var(--s1);border:1px solid var(--bd);border-radius:14px;padding:7px 8px}
+.cn .cl{font-size:11.5px;color:var(--mu);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cn .cv{display:flex;align-items:center;justify-content:space-between;gap:4px;margin-top:2px}
+.cn .cv b{font-size:22px;color:var(--ac);min-width:24px;text-align:center;font-variant-numeric:tabular-nums}
+button.pm{width:32px;height:32px;min-height:0;padding:0;border-radius:50%;font-size:18px;line-height:1;background:var(--s3)}
+
+/* вкладки */
+.tabs{display:flex;gap:5px;overflow-x:auto;position:sticky;top:0;z-index:6;background:var(--bg);padding:8px 0 6px;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{position:relative;white-space:nowrap;border-radius:22px;background:var(--s1);box-shadow:inset 0 0 0 1px var(--bd);padding:8px 14px}
+.tabs button.on{background:var(--ac2);box-shadow:none;font-weight:600}
+.tabs i{font-style:normal;position:absolute;top:-3px;right:-2px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--no);color:#fff;font-size:11px;line-height:18px;text-align:center;font-weight:700}
+
+/* карточки */
+.card{background:var(--s1);border:1px solid var(--bd);border-radius:16px;padding:12px;margin-bottom:8px}
+.card>h3{margin:0 0 8px;font-size:14px;display:flex;align-items:center;gap:8px}
+.tag{font-size:11px;padding:1px 8px;border-radius:20px;background:var(--s3);color:var(--mu);font-weight:500}
+.segs{display:flex;gap:5px;overflow-x:auto;margin-bottom:8px;scrollbar-width:none}
+.segs::-webkit-scrollbar{display:none}
+.seg{white-space:nowrap;border-radius:20px;background:var(--s2);box-shadow:inset 0 0 0 1px var(--bd);flex:1;padding:8px 10px}
+.seg.on{background:var(--ac2);box-shadow:none;font-weight:600}
+.seg em{font-style:normal;background:rgba(255,255,255,.16);border-radius:9px;padding:0 7px;margin-left:5px;font-size:12px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.chip{border-radius:20px;padding:6px 12px;font-size:13px;background:var(--s2);box-shadow:inset 0 0 0 1px var(--bd);min-height:34px}
+.chip.on{background:rgba(139,108,255,.18);box-shadow:inset 0 0 0 1.5px var(--ac);color:var(--ac);font-weight:600}
+.chip.pri{background:var(--ac2);box-shadow:none;color:#fff}
+.chip.ok{background:#15803d;box-shadow:none}.chip.no{background:#b91c1c;box-shadow:none}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:7px}
+.k{text-align:left;padding:10px 11px;border-radius:12px;border-left:4px solid var(--bd);line-height:1.25;min-height:48px;background:var(--s2);white-space:pre-line;font-size:13px}
+.k.a{border-left-color:var(--bl)}.k.c{border-left-color:#10b981}.k.p{border-left-color:var(--no)}.k.n{border-left-color:var(--wr)}.k.u{border-left-color:#8b5cf6}
+.warn{color:var(--wr);font-size:13px;margin:4px 0}
+
+/* карточки репортов и форм */
+.rcard{border-radius:14px;padding:11px 11px 10px;margin-bottom:8px;background:var(--s2);border:1px solid var(--bd);border-left:4px solid var(--no)}
+.rcard.fm{border-left-color:var(--ok)}
+.rcard.sel{box-shadow:0 0 0 1.5px var(--ac)}
+.rh{display:flex;align-items:center;gap:8px;font-weight:650;margin-bottom:4px}
+.rh .sp{min-width:0}
+.rt{font-size:13.5px;margin-bottom:9px;word-break:break-word;color:#d9d9e6}
+.cmdbox{font-family:ui-monospace,Consolas,monospace;font-size:15px;background:#0b0b10;border:1px solid var(--bd);border-radius:11px;padding:10px 12px;margin:6px 0 9px;word-break:break-all;color:#b7f5c7}
+.cmdbox.lock{color:#fca5a5}
+.acts{display:flex;gap:6px;flex-wrap:wrap}
+.acts button{flex:1 1 auto}
+.empty{text-align:center;color:var(--mu);padding:18px 8px;font-size:13px}
+.empty b{display:block;font-size:26px;margin-bottom:4px}
+
+/* чат */
+.feed{background:#0a0a0f;border:1px solid var(--bd);border-radius:12px;padding:6px 8px;max-height:52vh;min-height:140px;overflow-y:auto;font-family:ui-monospace,Consolas,monospace;font-size:12.5px;overscroll-behavior:contain}
+.ln{padding:3px 0 3px 8px;border-left:3px solid #3a3a4a;margin:2px 0;word-break:break-word;color:#c9c9d6}
+.ln.adm{border-left-color:var(--ok);color:#86efac}.ln.rep{border-left-color:var(--wr);color:#fcd34d}
+.ln .ts{color:#6e6e84;margin-right:4px}
+.tick{margin-top:2px;cursor:pointer}
+.tick .feed{max-height:none;min-height:0;font-size:12px;padding:4px 8px}
+.tick .ln{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* журнал */
+.sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(80px,1fr));gap:6px;margin-bottom:10px}
+.sum div{text-align:center;background:var(--s2);border-radius:12px;padding:8px 4px;font-size:12px;color:var(--mu)}
+.sum b{display:block;font-size:22px;color:var(--ac)}
+.jr{display:flex;gap:8px;align-items:flex-start;border-bottom:1px solid var(--bd);padding:7px 0;font-size:13px}
+.jr .sp{word-break:break-word}.jr .tm{color:var(--mu);font-variant-numeric:tabular-nums;flex:none}
+
+/* правила */
+.bub{display:inline-block;border-radius:20px;padding:6px 13px;margin:0 5px 6px 0;font-size:13px;background:var(--s2);box-shadow:inset 0 0 0 1px var(--bd)}
+.bub.on{background:var(--ac2);box-shadow:none;color:#fff}
+.ri{display:flex;gap:8px;align-items:flex-start;border-bottom:1px solid var(--bd);padding:8px 0}.ri .rb{flex:1}.ri .rn{font-weight:600}
+.f{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px}.f.w{grid-template-columns:1fr}
+
+/* настройки */
+.sw{display:flex;align-items:center;gap:10px;padding:10px 2px;border-bottom:1px solid var(--bd)}
+.sw:last-child{border:0}
+.sw span{flex:1}.sw small{display:block}
+.st{display:flex;align-items:center;gap:8px;padding:4px 0;font-size:13px}
+.st i{width:10px;height:10px;border-radius:50%;background:var(--no);flex:none}.st i.g{background:var(--ok)}
+.help{font-size:12.5px;color:var(--mu);line-height:1.5;margin:6px 0}
+.help b{color:var(--tx)}
+
+/* баннер */
+.banner{position:sticky;top:4px;z-index:9;background:linear-gradient(120deg,#b91c1c,#ef4444);color:#fff;border-radius:14px;padding:10px 12px;margin-bottom:8px;box-shadow:0 8px 22px rgba(0,0,0,.45);animation:dn .25s;cursor:pointer}
+.banner.bgreen{background:linear-gradient(120deg,#166534,#22c55e)}
+@keyframes dn{from{transform:translateY(-14px);opacity:0}to{transform:none;opacity:1}}
+
+/* клавиатура ABC */
+.kr{display:flex;gap:4px;margin-bottom:4px}.key{flex:1;min-width:0;padding:12px 0;font-size:16px;text-align:center;border-radius:9px}.key.sp{flex:4}.key.w{flex:1.5}.key.on{background:var(--ac2)}
+.pad{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}.kd{min-width:44px;text-align:center;flex:1}
+.kb main{padding:4px 6px 12px}.kb .card{padding:9px;margin-bottom:6px}.kb .hd{padding:6px 10px}.kb .cnts{margin-top:5px}
+.pn .hd,.kb .hd{padding:6px 10px;border-radius:12px;box-shadow:none}
+.pn .logo,.pn .brand b,.kb .brand b{display:none}.pn .brand small,.kb .brand small{font-size:12.5px;color:#fff}
+.pn .cnts{margin-top:6px}.pn .cn{padding:4px 7px}.pn button.pm{width:28px;height:28px}.pn .cn .cv b{font-size:19px}
+.pn .tabs button,.kb .tabs button{padding:6px 12px;min-height:34px}.pn .seg{padding:6px 8px;min-height:34px}
+@media (max-height:560px){.cnts{margin-top:5px}.hd{padding:5px 10px}.logo{display:none}.brand b{display:none}.brand small{color:#fff}}
+.kb .nokb{display:none!important}body:not(.kb) .onlykb{display:none!important}
+</style></head><body><main>
+<div id="banner" class="banner hid"></div>
+<header class="hd">
+  <div class="brand"><span class="logo">🛡</span><div><b>GM Admin</b><small id="cs">панель админа</small></div></div>
+  <label class="lv">ур.<select id="lvl"><option>1</option><option>2</option><option>3</option><option>4</option></select></label>
+</header>
+<section class="cnts" id="cnts"></section>
+<nav class="tabs" id="tabs">
+  <button data-t="1" class="on">🏠 Главная<i id="bd1" class="hid">0</i></button>
+  <button data-t="2">⚖ Наказания</button>
+  <button data-t="3">📚 Правила</button>
+  <button data-t="5">🧾 Журнал</button>
+  <button data-t="6">⚙ Настройки</button>
+  <button data-t="k" class="onlykb">⌨ ABC</button>
+</nav>
+
+<!-- ГЛАВНАЯ: репорты, формы, весь чат -->
+<section id="t-1">
+  <div class="segs">
+    <button class="seg on" id="s-r">📨 Репорты<em id="n-r">0</em></button>
+    <button class="seg" id="s-f">📋 Формы<em id="n-f">0</em></button>
+    <button class="seg" id="s-c">💬 Весь чат<em id="n-c">0</em></button>
+  </div>
+
+  <div id="p-r">
+    <div id="rl"></div>
+    <div class="row" id="rtools"><span class="sp"></span><button class="mini gh" id="qc">Очистить репорты</button></div>
+  </div>
+
+  <div id="p-f" class="hid">
+    <div id="al"></div>
+    <div id="ig" class="mu" style="margin:4px 2px 8px"></div>
+    <div class="card"><h3>📝 Быстрые сообщения в админ-чат</h3><div id="fl"></div>
+      <div class="row" style="margin-top:8px"><input id="fn" placeholder="название" style="max-width:120px;flex:none"><input id="fx" placeholder="текст: {id} {nick} {rep} {time} {reason}"><button class="pri mini" id="fadd">+</button></div></div>
+  </div>
+
+  <div id="p-c" class="hid">
+    <div class="chips" id="lf"></div>
+    <input id="lq" placeholder="Поиск по чату…" style="margin-bottom:8px">
+    <div class="feed" id="ll"></div>
+    <div class="row" style="margin-top:8px"><button class="mini" id="lcp">Копировать видимое</button><button class="mini gh" id="lcl">Очистить</button><span class="sp"></span><span class="mu" id="lc"></span></div>
+  </div>
+
+  <div class="tick" id="tick" title="Нажми — открыть весь чат"><div class="feed" id="tl"></div></div>
+</section>
+
+<!-- НАКАЗАНИЯ -->
+<section id="t-2" class="hid">
+  <div class="card">
+    <div class="row"><input id="nick" class="nokb" placeholder="Ник (Name_Surname)"><input id="tgt" placeholder="ID" inputmode="none" readonly style="max-width:96px;flex:none;text-align:center;font-weight:700;font-size:16px"></div>
+    <div class="pad" id="pad"></div>
+    <label class="sw" style="padding:8px 2px 2px"><input type="checkbox" id="off"><span>Игрок не в сети <small>команды пойдут по нику (offmute / offjail …)</small></span></label>
+    <div id="info" class="mu" style="margin-top:4px"></div><div id="sug" class="chips" style="margin-top:6px"></div></div>
+  <div class="card"><div class="segs" id="seg"></div><div class="chips" id="cats"></div><div class="grid" id="grid"></div></div>
+  <div class="card hid" id="bld"><h3>Наказание</h3><div id="bh"></div><div class="chips" id="bchips" style="margin-top:8px"></div>
+    <div class="row"><input id="bt" placeholder="срок" inputmode="numeric" style="max-width:90px;flex:none"><input id="br" placeholder="причина"></div>
+    <div id="bl"></div><div class="row" style="margin-top:8px"><button class="pri sp" id="bdone">✓ Выдал (в журнал)</button><button class="gh" id="bx">Закрыть</button></div></div>
+</section>
+
+<!-- ПРАВИЛА -->
+<section id="t-3" class="hid">
+  <div class="card"><h3>📚 Правила</h3><input id="rq" placeholder="Поиск по всем правилам…">
+    <div style="margin-top:10px" id="bch"></div>
+    <div class="row" style="margin-bottom:6px"><input id="nb" placeholder="новый пузырёк" style="max-width:170px;flex:none"><button class="mini" id="nbadd">+ пузырёк</button><button class="mini" id="bren">переименовать</button><button class="mini gh" id="bdel">удалить пузырёк</button></div>
+    <div id="rlist"></div><div class="row" style="margin-top:10px"><button class="pri" id="addr">+ Пункт</button><button class="mini gh" id="rreset">сбросить всё к умолчанию</button></div></div>
+  <div class="card hid" id="red"><h3 id="redh">Пункт</h3>
+    <div class="f"><input id="e_pt" placeholder="п. (напр. 2.1)"><input id="e_n" placeholder="Название"></div>
+    <div class="f"><select id="e_c"><option>mute</option><option>jail</option><option>ban</option><option>warn</option><option>rmute</option></select><select id="e_u"><option value="мин">минуты</option><option value="дн">дни</option><option value="">без срока</option></select></div>
+    <div class="f"><input id="e_a" placeholder="срок от" inputmode="numeric"><input id="e_b" placeholder="срок до" inputmode="numeric"></div>
+    <div class="f w"><input id="e_note" placeholder="Примечание (грубое нарушение, рецидив…)"><input id="e_kw" placeholder="Ключевые слова через запятую (для подсказок)"><select id="e_bub"></select></div>
+    <div class="row"><button class="pri" id="esave">Сохранить</button><button class="gh" id="ecancel">Отмена</button></div></div>
+</section>
+
+<!-- ЖУРНАЛ -->
+<section id="t-5" class="hid"><div class="card"><h3>🧾 Журнал</h3><div class="sum" id="sm"></div>
+  <div class="chips"><button class="chip on" id="jt">Сегодня</button><button class="chip" id="ja">Все дни</button></div><div id="jl"></div>
+  <div class="row" style="margin-top:10px"><button id="jc">Копировать</button><button class="gh" id="jx">Очистить сегодня</button></div></div>
+  <div class="card"><h3>Записать вручную</h3><div class="row"><select id="jk" style="max-width:150px;flex:none"><option value="fv">ФВ</option><option value="ev">Мероприятие</option><option value="ot">Другое</option></select><input id="jtx" placeholder="что проведено / комментарий"><button class="pri mini" id="jadd">+</button></div></div></section>
+
+<!-- НАСТРОЙКИ -->
+<section id="t-6" class="hid">
+  <div class="card nokb"><h3>⌨ Чат в игре</h3>
+    <div id="tapst"></div>
+    <p class="help">В игре чат <b>закрывается сам после отправки</b>. Включи службу доступности и один раз покажи, где кнопка чата и поле ввода — дальше приложение само откроет чат перед тем, как вписать команду.</p>
+    <div class="row"><button class="pri" id="tsvc">1. Включить службу</button><button class="pri" id="tcal">2. Показать кнопку чата и поле</button><button class="gh mini" id="tref">Обновить</button></div>
+  </div>
+  <div class="card"><h3>⚙ Работа</h3>
+    <label class="sw"><input type="checkbox" id="as"><span>Слать сразу<small>после вставки команды нажимать Enter</small></span></label>
+  </div>
+  <div class="card"><h3>✕ Отказ по форме</h3>
+    <div class="mu" style="margin-bottom:4px">Текст в админ-чат. {sender} — кто прислал форму, {reason} — причина</div>
+    <input id="rtpl" style="margin-bottom:8px">
+    <div class="mu" style="margin-bottom:4px">Причины отказа (по одной в строке)</div>
+    <textarea id="rrs"></textarea>
+  </div>
+  <div class="card nokb"><h3>🧪 Проверка без игры</h3><div class="row"><button class="pri" id="sim">📨 Репорт</button><button id="simA">📋 Форма</button><button id="simC">💬 Строки чата</button></div>
+    <p class="help">В игре всё это приходит само из чата (запись экрана должна быть включена в приложении).</p></div>
+</section>
+
+<section id="t-k" class="hid"><div class="card"><div id="kbd"></div><button id="kswitch" class="mini">🌐 сменить клавиатуру</button></div></section>
+<script id="core">const DEFAULT_RULES=[
+['оск','Оскорбление игрока','2.1','mute',15,30,'мин','',['оскорб','тупой','дебил','идиот','урод','лох','чмо','мразь'],'',0],
+['род','Упоминание родных','2.1','mute',90,180,'мин','',['мать','мамк','мамы','родных','родител','отца'],'',0],
+['оскр','Оскорбление родных','2.1','ban',0,0,'дн','срок в правилах обрезан',['оскорбил мать','оскорбил родных'],'',1],
+['проп','Пропаганда запрещённых тем','2.2','ban',3,14,'дн','грубое: бан 31 дн — навсегда',['пропаганд','наркот','порно','суицид','терроризм'],'',0],
+['рек','Реклама','2.3','mute',60,120,'мин','грубое: бан 31 дн — навсегда',['реклам','дискорд','телеграм','ютуб','t.me','youtube','вступай','заходи на','ссылк'],'',0],
+['нац','Расизм / политика / нацизм','2.4','mute',60,180,'мин','или бан 1–31 дн',['расизм','нацист','фашист','чурка','хач','политик','ксенофоб'],'',0],
+['мик','Звуки в микрофон','2.5','mute',0,20,'мин','грубое: мут 30–60 мин',['музык','шум','крики','орет','войс','микрофон'],'',0],
+['ооc','Перенос конфликта IC↔OOC','2.6','ban',7,0,'дн','до навсегда',['доксинг','угрожает','личные данные','в реале'],'',0],
+['репн','Репорт не по назначению','3.1','rmute',0,30,'мин','или устное предупреждение',['дай деньги','дайте деньги','дайте уровень','телепорт','флуд','оффтоп'],'',0],
+['хам','Хамство / клевета на админа','3.2','mute',30,60,'мин','грубое: бан 3–31 дн',['админ лох','админы лохи','админ дебил','админ мразь','клевет'],'',0],
+['меш','Мешает работе админов','3.3','jail',0,60,'мин','обычное: устное; грубое: деморган до 60',['мешает админ','провокац'],'',0],
+['спор','Оспаривание действий админов','3.4','mute',60,60,'мин','грубое: бан 1–5 дн',['оспарив','тролл','несправедлив'],'',0],
+['мош','Мошенничество / махинации','4.1','ban',3,7,'дн','грубое: бан 31 дн — навсегда',['обман','кинул','скам','мошенник','развел','продаю аккаунт'],'',0],
+['вым','Вымогательство','4.2','ban',7,31,'дн','',['вымогат','отдай или','ультиматум'],'',0],
+['биз','Второй бизнес','4.3','ban',0,31,'дн','обычное: предупреждение',['второй бизнес','два бизнеса'],'',0],
+['реал','Сделки за реальные деньги','4.4','ban',0,31,'дн','с обнулением; грубое: навсегда',['за реал','за рубли','за донат','за деньги'],'',0],
+['баг','Багоюз','5.2','warn',0,0,'','или бан до 3 дн',['баг','багоюз','баганул','текстур'],'',0],
+['клик','Автокликер / скрипты / читы','5.2','ban',3,7,'дн','',['чит','читы','читер','читак','аимбот','аим','wh','вх','скрипт','автокликер','макрос','летает'],'',0],
+['по','Распространение стороннего ПО','5.2','ban',7,31,'дн','',['распростран','раздает чит'],'',0],
+['кноп','Моды кнопок / зоны нажатия','5.2','ban',0,7,'дн','',['увеличил кнопки','мод кнопок','зона нажатия'],'',0],
+['дейс','Злоупотребление Действие/Попытка','5.1','mute',0,20,'мин','',['попытк','действи','событи'],'',0],
+['свою','Отыгрыш только в свою пользу','5.1.1','jail',0,20,'мин','',['в свою пользу','не дает ответить'],'',0],
+['уход','Уход от RP','5.3','jail',0,60,'мин','',['ливнул','лив','афк','вышел из игры','в воду','ушел от рп'],'',0],
+['дом','Провокация у дома / уход в дом','5.4.1','jail',0,120,'мин','',['у дома','территори','забежал в дом','в квартиру'],'',0],
+['сила','Огонь после требования уйти','5.4.2','jail',0,120,'мин','',['после требования'],'',0],
+['стрим','Срыв стрима медиа','5.5','jail',0,60,'мин','грубое: бан до 3 дн',['стримснайп','стрим','медиа'],'',0],
+['ном','Оскорбительный номер','5.7','ban',0,31,'дн','снимается при смене номера',['номер','номерной'],'',0],
+['сем','Название семьи','5.8','ban',0,31,'дн','снимается при смене названия',['название семьи','семья называется'],'',0],
+['мг','MetaGaming','MG','mute',0,15,'мин','',['мг','метагейм','metagaming'],'',0],
+['нрп','Non-RP','NonRP','jail',0,30,'мин','',['нонрп','нрп','nonrp','non rp'],'',0],
+['пг','PowerGaming','PG','jail',0,30,'мин','',['пг','повергейм','powergaming'],'',0],
+['дм','Death Match','DM','jail',30,60,'мин','',['дм','deathmatch','убил без причины','убивает без причины'],'',0],
+['массдм','Mass DM','Mass DM','warn',0,0,'','',['массдм','масс дм','mass dm'],'',0],
+['гз','Mass DM в зелёной зоне','Mass DM GZ','jail',0,90,'мин','+ WARN; рецидив: бан до 3 дн',['гз','зеленой зоне'],'warn',0],
+['дб','DriveBy','DB','jail',0,0,'мин','срок в правилах обрезан',['дб','драйвбай','таран','таранил','сбил'],'',1],
+['ск','Spawn Kill','SK','jail',60,120,'мин','',['ск','спавнкил','на спавне'],'',0],
+['массск','Mass Spawn Kill','Mass SK','warn',0,0,'','рецидив: бан до 3 дн',['массск','масс ск'],'',0],
+['рк','Revenge Kill','RK','jail',0,30,'мин','',['рк','месть','revenge'],'',0],
+['тк','Team Kill','TK','jail',0,30,'мин','в организации — WARN',['тк','teamkill','убил своего'],'',0],
+['выдача','Выдаёт себя за администрацию','1.2','ban',3,7,'дн','грубое: бан 31 дн — навсегда',['представляется админом','фейк админ','выдает себя'],'',0]];
+const SN=[
+['ож','Ожидайте','Приветствую, ожидайте.','Общее'],['пр','Проверю','Приветствую, проверю вашу ситуацию.','Общее'],['уч','Уточните','Приветствую! Уточните, пожалуйста, вопрос подробнее.','Общее'],['дк','Нужны доказательства','Приветствую! Пришлите, пожалуйста, доказательства (видео или скриншоты).','Общее'],['ид','Нужен ID','Приветствую! Укажите, пожалуйста, ID игрока и опишите ситуацию.','Общее'],['вр','Займёт время','Приветствую. Проверка займёт некоторое время, благодарю за ожидание.','Общее'],['сп','Спасибо','Благодарю за обращение! Приятной игры.','Общее'],['пи','Приятной игры','Приятной игры!','Общее'],
+['вст','Набор во фракцию','Приветствую! Набор во фракции объявляется в игровом чате и официальных источниках проекта.','Вопросы'],['тп','Просит ТП/валюту','Приветствую. Телепорт, валюта, уровни и имущество через репорт не выдаются (п. 3.1).','Вопросы'],['пот','Потерял имущество','Приветствую. Администрация не восстанавливает потерянное, украденное или переданное имущество (п. 1.4).','Вопросы'],['уд','Удалил аккаунт','Приветствую. Удаление аккаунта необратимо, восстановить его невозможно (п. 1.7).','Вопросы'],['пер','Между серверами','Приветствую. Перемещение имущества и валюты между серверами запрещено (п. 4.7).','Вопросы'],['дон','Сделки за реал','Приветствую. Сделки с игровым имуществом и валютой за реальные деньги запрещены (п. 4.4).','Вопросы'],['лим','Лимит передачи','Приветствую. Безвозмездно можно передавать не более 30.000.000 рублей в сутки (п. 4.5).','Вопросы'],['бизн','Один бизнес','Приветствую. На одном сервере можно владеть только одним бизнесом (п. 4.3).','Вопросы'],['ник','Про никнейм','Приветствую. Никнейм не должен быть схож с существующими, администрации и медиа-партнёров и не должен содержать оскорблений (п. 1.6).','Вопросы'],['багр','О баге','Приветствую. О баге сообщите через официальные ресурсы проекта с описанием и доказательствами. Использовать баги в своих целях запрещено (п. 5.2).','Вопросы'],['прав','Про правила','Приветствую. С правилами проекта можно ознакомиться на официальных ресурсах. Незнание правил не освобождает от ответственности (п. 1.1).','Вопросы'],
+['нач','Начал проверку','Приветствую, приступил к проверке нарушителя.','Нарушения'],['офф','Игрок не в сети','Приветствую. Игрок не в сети, рассмотрим вашу жалобу по предоставленным доказательствам.','Нарушения'],['нд','Нет доказательств','Приветствую. Без доказательств наказать игрока не могу. Пришлите видео или скриншоты.','Нарушения'],['пов','Передал старшим','Приветствую. Ваша ситуация передана старшей администрации, ожидайте.','Нарушения'],['рп','Это RP-ситуация','Приветствую. Данная ситуация является частью RolePlay процесса, нарушений нет.','Нарушения'],
+['вн','Наказан','Нарушитель наказан. Приятной игры!','Итог'],['нн','Нарушений нет','Приветствую, нарушений не обнаружено. Приятной игры!','Итог'],['реш','Решено','Приветствую, ваш вопрос решён. Приятной игры!','Итог'],['ждк','Ответ в чате','Приветствую, посмотрите игровой чат — я ответил.','Итог'],['жал','Жалоба на наказание','Приветствую. Если не согласны с наказанием, подайте жалобу в соответствующем разделе в течение 2 дней с момента выдачи (п. 3.4).','Итог'],
+['флуд','Не флудить','Приветствую. Репорт предназначен только для вопросов и жалоб, прошу не флудить (п. 3.1).','Отказ'],['груб','Без грубости','Приветствую. Прошу общаться вежливо, хамство в сторону администрации наказуемо (п. 3.2).','Отказ'],['оспор','Не оспаривать','Приветствую. Публичное оспаривание действий администрации запрещено, подайте жалобу в соответствующем разделе (п. 3.4).','Отказ'],['обм','Обман не вернём','Приветствую. Администрация не возвращает имущество, переданное добровольно, даже при мошенничестве (п. 1.4).','Отказ'],['нельзя','Не могу помочь','Приветствую. К сожалению, помочь с этим не могу.','Отказ']];
+const ANSC=['Общее','Вопросы','Нарушения','Итог','Отказ'];
+const RC={'Чат':['оск','род','оскр','рек','нац','мик','проп','мг'],'RP':['нрп','пг','дм','массдм','гз','дб','ск','массск','рк','тк','уход','дом','сила','дейс','свою'],'Читы/ПО':['клик','баг','по','кноп'],'Экономика':['мош','вым','реал','биз'],'Админы':['репн','хам','меш','спор','выдача'],'Прочее':['ооc','стрим','ном','сем']};
+const CHK=[['Слежка','/sp {id}'],['Инфо о наказаниях','/getinfo {id}'],['Статистика','/stats {id}'],['Оружие','/weap {id}'],['Лицензии','/alic {id}'],['Навыки','/skills {id}'],['К игроку','/goto {id}'],['К себе','/gethere {id}'],['Заспавнить','/spawn {id}'],['Заморозить','/freeze {id}'],['Разморозить','/unfreeze {id}'],['Подбросить','/slap {id}'],['Здоровье 100','/hp {id} 100'],['Бронежилет','/arm {id} 100'],['Починить авто','/fixcar {id}'],['Перевернуть авто','/flip {id}']];
+const NOID=[['Выйти из слежки','/spoff'],['В админ-зону','/az'],['Режим бога','/gm'],['Админы онлайн','/admins'],['Медиа онлайн','/medias'],['Надеть маску','/clist'],['Входы/выходы','/connect'],['Поставить метку','/mark'],['К метке','/gotomark'],['Лидеры','/leaders'],['ХП вокруг','/hpall'],['Оружие у всех (100м)','/weapall'],['Одобрить гос. волну','/acceptgnews'],['Список фракции','/find'],['Транспорт по параметрам','/veh_find']];
+const UNDO=[['Снять мут','/unmute {id}'],['Снять деморган','/unjail {id}'],['Снять мут репорта','/runmute {id}'],['Снять варн','/unwarn {id} причина'],['Разбан','/unban {id}'],['Снять наручники','/uncuff {id}'],['Снять мешок','/untie {id}']];
+const LV={ans:1,sp:1,spoff:1,getinfo:1,alic:1,hp:1,fixcar:1,flip:1,az:1,gm:1,admins:1,medias:1,clist:1,id:1,mute:2,unmute:2,jail:2,unjail:2,rmute:2,runmute:2,offmute:2,offjail:2,stats:2,weap:2,skills:2,goto:2,gotocar:2,getcar:2,spawn:2,freeze:2,unfreeze:2,slap:2,connect:2,mark:2,gotomark:2,leaders:2,warn:3,unwarn:3,ban:3,offwarn:3,skick:3,gethere:3,hpall:3,weapall:3,acceptgnews:3,find:3,veh_find:3,uncuff:3,untie:3,sban:4,offban:4,unban:4,arm:4};
+const OFF={mute:'offmute',jail:'offjail',warn:'offwarn',ban:'offban'};
+const norm=s=>s.toLowerCase().replace(/ё/g,'е');
+const words=s=>norm(s).split(/[^a-zа-я0-9_.]+/).filter(Boolean);
+function kwHit(t,tk,k){k=norm(k);if(k.includes(' ')||k.includes('.'))return t.includes(k);return k.length<=3?tk.includes(k):tk.some(w=>w.startsWith(k))}
+function match(txt){const t=norm(txt),tk=words(txt);return RULES.map(r=>({r,s:r[8].filter(k=>kwHit(t,tk,k)).length})).filter(x=>x.s).sort((a,b)=>b.s-a.s)}
+const dt=r=>r[4]>0?r[4]:(r[5]>0?r[5]:'');
+const defReason=r=>(/^\d/.test(r[2])?'п. '+r[2]+' ':'')+r[1];
+function rng(r){const[a,b,u]=[r[4],r[5],r[6]];if(!u)return 'без срока';if(!a&&!b)return 'срок уточни';if(a&&b)return a===b?a+' '+u:a+'–'+b+' '+u;return a?'от '+a+' '+u:'до '+b+' '+u}
+function compose(r,o){let c=r[3];if(o.off&&OFF[c])c=OFF[c];
+ const id=o.id||'{ID}',reason=o.reason||defReason(r);
+ const mk=(cmd,t)=>cmd.endsWith('warn')?`/${cmd} ${id} ${reason}`:`/${cmd} ${id} ${t||'{срок}'} ${reason}`;
+ const lines=[mk(c,o.time)],warns=[];
+ if(r[9]==='warn')lines.push(`/${o.off?'offwarn':'warn'} ${id} ${reason}`);
+ const need=Math.max(...lines.map(l=>LV[l.slice(1).split(' ')[0]]||1));
+ if(o.lvl<need)warns.push(`Нужен ${need} ур. — передай старшему админу`);
+ const t=+o.time;if(t&&r[6]){if(r[5]&&t>r[5])warns.push(`Больше максимума (${r[5]}) — только при отягчающих, п. 1.8`);if(r[4]&&t<r[4])warns.push(`Меньше минимума (${r[4]})`)}
+ if(r[10])warns.push('Срок в присланных правилах обрезан — проверь точное значение');
+ return{lines,warns,need}}
+
+let RULES=DEFAULT_RULES.slice();
+function defBubbles(){const used=new Set(),out=Object.keys(RC).map(n=>({n,items:RC[n].map(c=>{const r=DEFAULT_RULES.find(x=>x[0]===c);used.add(c);return r.slice()}).filter(Boolean)}));
+ const rest=DEFAULT_RULES.filter(r=>!used.has(r[0]));if(rest.length){const p=out.find(b=>b.n==='Прочее')||(out.push({n:'Прочее',items:[]}),out[out.length-1]);rest.forEach(r=>p.items.push(r.slice()))}return out}
+const flat=b=>b.flatMap(x=>x.items);
+function idsIn(s){const r=[],re=/[A-Za-z][A-Za-z0-9_]*\[(\d{1,4})\]|(?<![\d.,\[])(\d{1,3})(?![\d\]]|[.,]\d)/g;let m;while((m=re.exec(s))){const v=m[1]||m[2];if(!r.includes(v))r.push(v)}return r}
+function adminCmd(body){const m=body.match(/\/([A-Za-z_]{2,12})(?:\s+([^\n]{0,100}))?/);return m?{cmd:m[1].toLowerCase(),text:('/'+m[1]+(m[2]?' '+m[2]:'')).trim()}:null}
+function parseChat(raw){
+ let s=raw.replace(/\b\d{1,2}:\d{2}(:\d{2})?\b/g,' ').trim();
+ const o={rep:'',tgt:'',name:'',msg:'',count:'',admin:false,ids:[]};
+ const cm=s.match(/К-во репорта:\s*(\d+)/i);if(cm){o.count=cm[1];s=s.replace(/\[?К-во репорта:[^\]]*\]?/i,'').trim()}
+ o.admin=/<ADM>/i.test(s);s=s.replace(/<ADM>\s*(\(\d+\))?/i,'').trim();
+ const m=s.match(/([A-Za-z][A-Za-z0-9_]*)\[(\d+)\]\s*:\s*([\s\S]*)$/);let body=s;
+ if(m){o.name=m[1];body=m[3];if(!o.admin)o.rep=m[2]}
+ else if(/^\d{1,4}$/.test(s)){o.tgt=s;o.ids=[s];return o}
+ else if(/^[A-Za-z][A-Za-z0-9]*_[A-Za-z0-9_]+$/.test(s)){o.tgt=s;return o}
+ o.msg=body.trim();o.ids=idsIn(body).filter(x=>x!==o.rep);if(o.ids.length)o.tgt=o.ids[0];
+ return o}
+</script>
+<script>
+const $=s=>document.querySelector(s);
+const E=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const A=window.Android||null;
+const KB=!!(A&&A.mode&&A.mode()==='kb')||/[?&]kb/.test(location.search);
+if(KB)document.body.classList.add('kb');else if(A)document.body.classList.add('pn');
+const st=(k,d)=>{try{const v=JSON.parse(localStorage.getItem(k));return v??d}catch(e){return d}},sv=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+const DF=[['Беру репорты','/a Беру репорты'],['Нужна помощь','/a Нужна помощь по ID {id}'],['Форма наказания','Ник: {nick} | ID: {id} | Нарушение: {reason} | Наказание: {time}'],['Ответил на репорт','/a Ответил на репорт {rep}']];
+const REJ0=['Нет доказательств','Не по правилам','Уже наказан','Недостаточно оснований','Не в моей компетенции'];
+let lvl=st('lvl',3),off=st('off',false),auto=st('as',false),bubbles=st('rules2',null)||defBubbles(),forms=st('forms',DF),jr=st('jr',[]),cl=st('cl',[]),
+    rej=st('rej',REJ0),rejTpl=st('rejTpl','/a {sender}, форма отклонена: {reason}');
+RULES=flat(bubbles);
+let ctx={rep:'',tgt:'',nick:'',name:'',msg:'',count:''},reports=[],reqs=[],ign=[],sel=-1,B=null,seg=0,pc=bubbles[0]?bubbles[0].n:'',ac='Общее',rb=0,ed=null,lf='all',jf='t',seg1='r',curTab='1';
+const pad2=n=>String(n).padStart(2,'0');
+const dnow=()=>new Date();
+const today=()=>{const d=dnow();return d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate())};
+const hhmm=()=>{const d=dnow();return pad2(d.getHours())+':'+pad2(d.getMinutes())};
+const hms=()=>hhmm()+':'+pad2(dnow().getSeconds());
+const el=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
+function cp(t){try{if(A&&A.copy)A.copy(t);else navigator.clipboard.writeText(t)}catch(e){}}
+function flash(b,m){const o=b.dataset.o||(b.dataset.o=b.textContent);b.textContent=m||'✓';setTimeout(()=>b.textContent=o,900)}
+// вписать в чат игры (force = отправить сразу, даже если «слать сразу» выключено)
+function put(t,b,force){let ok=false;try{if(A&&A.type)ok=A.type(t,!!(force||auto))}catch(e){}if(!ok)cp(t);if(b)flash(b,ok?'✓ в чат':'✓ копия');return ok}
+function btn(t,f,c){const b=el('button',c||'',t);b.onclick=()=>f(b);return b}
+function cmdRow(l){const d=el('div','cmdbox',l);const r=el('div','acts');r.append(btn('В чат',b=>put(l,b),'pri'),btn('Отправить',b=>put(l,b,true),'ok'),btn('⧉',b=>{cp(l);flash(b)},'gh'));const w=el('div');w.append(d,r);w.style.marginBottom='8px';return w}
+function warns(o,w){w.forEach(x=>o.append(el('div','warn','⚠ '+x)))}
+const E0=(k,l)=>({d:today(),t:hhmm(),k,l});
+const J=(k,l)=>{jr.push(E0(k,l));if(jr.length>3000)jr.splice(0,jr.length-3000);sv('jr',jr);renderCnt();renderJ()};
+const myId=()=>ctx.tgt||ctx.rep,tgtW=()=>off&&ctx.nick?ctx.nick:myId();
+const fill=t=>t.replace(/\{id\}/g,myId()||'{id}').replace(/\{nick\}/g,ctx.nick||ctx.name||'{nick}').replace(/\{rep\}/g,ctx.rep||'{rep}').replace(/\{time\}/g,($('#bt')&&$('#bt').value)||'{time}').replace(/\{reason\}/g,($('#br')&&$('#br').value)||'{reason}');
+function syncF(){$('#tgt').value=ctx.tgt;$('#nick').value=ctx.nick}
+function ctxChanged(){if(A&&A.setCtx)A.setCtx(ctx.rep,ctx.tgt);renderP2();renderB();renderF()}
+function setCtx(p){ctx=Object.assign({},ctx,{rep:p.rep||'',tgt:p.tgt||'',name:p.name||'',msg:p.msg||'',count:p.count||''});syncF();ctxChanged()}
+function go(id){ctx.tgt=String(id);syncF();ctxChanged();switchTab('2')}
+
+// ===== счётчики (авто + ручные +/−) =====
+const CK=[['rep','📨','Репорты'],['pun','⚖','Наказания'],['fv','📌','ФВ']];
+const nToday=k=>{const t=today();return jr.filter(x=>x.d===t&&x.k===k).length};
+function adj(k,d){
+ if(d>0)jr.push(E0(k,'вручную'));
+ else{const t=today();for(let i=jr.length-1;i>=0;i--)if(jr[i].k===k&&jr[i].d===t){jr.splice(i,1);break}}
+ sv('jr',jr);renderCnt();renderJ()}
+function renderCnt(){const box=$('#cnts');box.innerHTML='';
+ CK.forEach(([k,ic,n])=>{const d=el('div','cn'),r=el('div','cv');
+  r.append(btn('−',()=>adj(k,-1),'pm'),el('b','',nToday(k)),btn('+',()=>adj(k,1),'pm'));
+  d.append(el('div','cl',ic+' '+n),r);box.append(d)})}
+
+// ===== главная: репорты =====
+function badges(){const nr=reports.length,nf=reqs.length;
+ $('#n-r').textContent=nr;$('#n-f').textContent=nf;$('#n-c').textContent=cl.length;
+ const b=$('#bd1');b.textContent=nr+nf;b.classList.toggle('hid',!(nr+nf))}
+function renderR1(){const L=$('#rl');L.innerHTML='';badges();$('#rtools').classList.toggle('hid',!reports.length);
+ if(!reports.length)L.append(Object.assign(el('div','empty'),{innerHTML:'<b>📭</b>Репортов нет.<br>Они появятся сами, когда приложение увидит их в чате игры.'}));
+ reports.forEach((r,i)=>{const p=r.p,rid=p.rep||p.tgt,c=el('div','rcard'+(i===sel?' sel':''));
+  const h=el('div','rh');h.append(el('span','',(p.name||'?')+' ['+rid+']'),el('span','sp'));if(p.count)h.append(el('span','tag','№'+p.count));c.append(h);
+  if(p.msg)c.append(el('div','rt',p.msg));
+  const row=el('div','acts');
+  row.append(btn(i===sel?'▲ свернуть':'💬 Ответить',()=>{sel=i===sel?-1:i;setCtx(p);renderR1()},'pri'));
+  (p.ids||[]).slice(0,3).forEach(id=>row.append(btn('→ ID '+id,()=>go(id),'gh')));
+  row.append(btn('/sp',b=>put('/sp '+(p.tgt||rid),b),'gh'),btn('✕',()=>{reports.splice(i,1);if(A&&A.ack)A.ack(r.line);if(sel>=i)sel=-1;renderR1()},'gh'));c.append(row);
+  if(i===sel){const cs=el('div','chips');cs.style.margin='10px 0 8px';ANSC.forEach(x=>cs.append(btn(x,()=>{ac=x;renderR1()},'chip'+(x===ac?' on':''))));c.append(cs);
+   const g=el('div','grid');SN.filter(s=>s[3]===ac).forEach(s=>g.append(btn(s[1],b=>{put('/ans '+rid+' '+s[2],b);J('rep','Ответил '+(p.name||'')+'['+rid+']: '+s[1])},'k a')));c.append(g)}
+  L.append(c)})}
+$('#qc').onclick=()=>{reports.forEach(r=>{if(A&&A.ack)A.ack(r.line)});reports=[];sel=-1;renderR1()};
+
+// ===== главная: формы из админ-чата (принять / отказать) =====
+const cmdName=t=>(t.match(/^\/([A-Za-z_]+)/)||[])[1]?.toLowerCase()||'';
+const fkey=q=>q.sender+'\t'+q.text;
+function dropReq(q){const i=reqs.indexOf(q);if(i>=0)reqs.splice(i,1);if(A&&A.ackForm)A.ackForm(fkey(q));renderAL()}
+function acceptForm(q,b){const need=LV[cmdName(q.text)]||1;if(lvl<need){flash(b,'🔒 нужен '+need+' ур.');return}
+ put(q.text,b,true);J('pun','Принял форму '+q.sender+': '+q.text);setTimeout(()=>dropReq(q),700)}
+function refuseForm(q,reason,b){const t=rejTpl.replace(/\{sender\}/g,q.sender).replace(/\{reason\}/g,reason||'').replace(/[:,\s]+$/,'').replace(/\s{2,}/g,' ');
+ put(t,b,true);J('ot','Отказал форму '+q.sender+': '+q.text+(reason?' ('+reason+')':''));setTimeout(()=>dropReq(q),700)}
+function renderAL(){const L=$('#al');L.innerHTML='';badges();
+ if(!reqs.length)L.append(Object.assign(el('div','empty'),{innerHTML:'<b>📋</b>Форм нет.<br>Когда админ напишет в админ-чат команду (/jail, /sp, /offjail …), она появится здесь: можно принять или отказать.'}));
+ reqs.forEach(q=>{const need=LV[cmdName(q.text)]||1,lock=lvl<need,c=el('div','rcard fm');
+  const h=el('div','rh');h.append(el('span','','📋 '+q.sender),el('span','sp'));if(q.t&&q.t!=='—')h.append(el('span','tag',q.t));c.append(h);
+  c.append(el('div','cmdbox'+(lock?' lock':''),q.text));if(lock)c.append(el('div','warn','⚠ Нужен '+need+' ур. — принять нельзя, можно отказать'));
+  const row=el('div','acts');
+  const ok=btn('✓ Принять',b=>acceptForm(q,b),'ok');if(lock)ok.disabled=true;
+  row.append(ok,btn(q.ref?'▲ причины':'✕ Отказать',()=>{q.ref=!q.ref;renderAL()},'no'),btn('✎ Вписать',b=>put(q.text,b,false),'gh'));
+  {const tid=(q.text.split(/\s+/)[1]||'');if(/^\d{1,4}$/.test(tid))row.append(btn('→ ID '+tid,()=>go(tid),'gh'))}
+  row.append(btn('⧉',b=>{cp(q.text);flash(b)},'gh'),btn('🗑',()=>dropReq(q),'gh'));c.append(row);
+  if(q.ref){const cs=el('div','chips');cs.style.marginTop='10px';rej.concat(['Без причины']).forEach(r=>cs.append(btn(r,b=>refuseForm(q,r==='Без причины'?'':r,b),'chip no')));c.append(cs)}
+  L.append(c)});
+ $('#ig').textContent=ign.length?'Пропущено (нет прав): '+ign.slice(0,4).join(' · '):''}
+function renderF(){const L=$('#fl');L.innerHTML='';forms.forEach((f,i)=>{const d=el('div','row');d.style.marginBottom='6px';const s=el('span','sp');s.innerHTML='<b>'+E(f[0])+'</b><br><small>'+E(fill(f[1]))+'</small>';
+ d.append(s,btn('В чат',b=>put(fill(f[1]),b),'pri mini'),btn('✕',()=>{forms.splice(i,1);sv('forms',forms);renderF()},'gh mini'));L.append(d)})}
+$('#fadd').onclick=()=>{const n=$('#fn').value.trim(),x=$('#fx').value.trim();if(!n||!x)return;forms.push([n,x]);sv('forms',forms);$('#fn').value=$('#fx').value='';renderF()};
+
+// ===== главная: весь чат (лог) =====
+const KN={adm:'Админ-чат',rep:'Репорты',chat:'Чат'};
+let cq='';
+function lineEl(x){const d=el('div','ln '+x.k);d.append(el('span','ts',x.ts),document.createTextNode(x.x));return d}
+const okLine=x=>(lf==='all'||x.k===lf)&&(!cq||norm(x.x).includes(cq));
+function renderChat(){const f=$('#lf');f.innerHTML='';['all','adm','rep','chat'].forEach(k=>f.append(btn(k==='all'?'Все':KN[k],()=>{lf=k;renderChat()},'chip'+(lf===k?' on':''))));
+ cq=norm($('#lq').value);const L=$('#ll');L.innerHTML='';
+ const v=cl.filter(okLine).slice(-250);renderChat.v=v;
+ if(!v.length)L.append(el('div','empty','Пока пусто. Приложение записывает сюда всё, что видит в чате игры.'));
+ v.forEach(x=>L.append(lineEl(x)));L.scrollTop=L.scrollHeight;$('#lc').textContent=v.length+' из '+cl.length;renderTick();badges()}
+function renderTick(){const L=$('#tl');L.innerHTML='';const v=cl.slice(-4);
+ if(!v.length)L.append(el('div','ln','чат пока пуст…'));v.forEach(x=>L.append(lineEl(x)))}
+function addLog(k,ts,x){const e={k,ts,x};cl.push(e);if(cl.length>1500)cl.splice(0,cl.length-1500);if(!A)sv('cl',cl.slice(-300));
+ renderTick();$('#n-c').textContent=cl.length;
+ if(curTab==='1'&&seg1==='c'){const L=$('#ll');if(okLine(e)){const near=L.scrollHeight-L.scrollTop-L.clientHeight<60;if(L.querySelector('.empty'))L.innerHTML='';L.append(lineEl(e));while(L.children.length>250)L.removeChild(L.firstChild);if(near)L.scrollTop=L.scrollHeight;$('#lc').textContent=L.children.length+' из '+cl.length}}}
+$('#lq').oninput=renderChat;
+$('#lcp').onclick=b=>{cp((renderChat.v||[]).map(x=>x.ts+' '+x.x).join('\n'));flash(b.target)};
+$('#lcl').onclick=()=>{cl=[];sv('cl',cl);renderChat()};
+$('#tick').onclick=()=>showSeg('c');
+function showSeg(s){seg1=s;['r','f','c'].forEach(k=>{$('#p-'+k).classList.toggle('hid',k!==s);$('#s-'+k).classList.toggle('on',k===s)});$('#tick').classList.toggle('hid',s==='c');if(s==='c')renderChat()}
+$('#s-r').onclick=()=>showSeg('r');$('#s-f').onclick=()=>showSeg('f');$('#s-c').onclick=()=>showSeg('c');
+
+// ===== наказания и команды =====
+function putCmd(t,b){const l=t.replace(/\{id\}/g,myId()||'{ID}'),need=LV[l.slice(1).split(' ')[0]]||1;if(lvl<need){flash(b,'🔒 ур. '+need);return}put(l,b)}
+function renderP2(){$('#info').textContent=(ctx.name&&ctx.msg?ctx.name+': «'+ctx.msg.slice(0,90)+'»':'')+(off?' · игрок не в сети — команды пойдут по нику':'');
+ const sug=$('#sug');sug.innerHTML='';(ctx.msg?match(ctx.msg):[]).slice(0,3).forEach(x=>sug.append(btn('🔎 п.'+x.r[2]+' '+x.r[1],()=>openB(x.r[0]),'chip pri')));
+ const sg=$('#seg');sg.innerHTML='';['⚖ Наказания','🔍 Проверка','⚙ Без ID','↩ Снять'].forEach((n,i)=>sg.append(btn(n,()=>{seg=i;renderP2()},'seg'+(i===seg?' on':''))));
+ const cs=$('#cats'),g=$('#grid');cs.innerHTML='';g.innerHTML='';
+ if(seg===0){if(!bubbles.some(b=>b.n===pc))pc=bubbles[0]?bubbles[0].n:'';bubbles.forEach(b=>cs.append(btn(b.n,()=>{pc=b.n;renderP2()},'chip'+(b.n===pc?' on':''))));
+  (bubbles.find(b=>b.n===pc)||{items:[]}).items.forEach(r=>g.append(btn(r[1]+'\n'+rng(r),()=>openB(r[0]),'k p')))}
+ else{(seg===1?CHK:seg===2?NOID:UNDO).forEach(([l,t])=>g.append(btn(l,b=>putCmd(t,b),'k '+(seg===1?'c':seg===2?'n':'u'))))}}
+function openB(k){B=RULES.find(x=>x[0]===k);if(!B)return;$('#bt').value=dt(B);$('#br').value=defReason(B);renderB();$('#bld').scrollIntoView({behavior:'smooth',block:'nearest'})}
+function renderB(){const c=$('#bld');if(!B){c.classList.add('hid');return}c.classList.remove('hid');
+ $('#bh').innerHTML='<b>'+E(B[1])+'</b> <span class="tag">п. '+E(B[2])+'</span> <span class="mu">'+E(rng(B))+(B[7]?' · '+E(B[7]):'')+'</span>';
+ const ch=$('#bchips');ch.innerHTML='';[...new Set([B[4],Math.round((B[4]+B[5])/2),B[5]].filter(x=>x>0))].forEach(v=>ch.append(btn(v+' '+B[6],()=>{$('#bt').value=v;renderB()},'chip')));
+ const res=compose(B,{id:tgtW(),time:$('#bt').value,reason:$('#br').value,off,lvl});const l=$('#bl');l.innerHTML='';res.lines.forEach(x=>l.append(cmdRow(x)));warns(l,res.warns);B._r=res}
+$('#bt').oninput=$('#br').oninput=renderB;$('#bx').onclick=()=>{B=null;renderB()};
+$('#bdone').onclick=()=>{if(!B||!B._r)return;J('pun',B._r.lines.join(' + '));flash($('#bdone'),'✓ записано')};
+$('#tgt').oninput=e=>{ctx.tgt=e.target.value.trim();ctxChanged()};$('#nick').oninput=e=>{ctx.nick=e.target.value.trim();ctxChanged()};
+function renderPad(){const p=$('#pad');p.innerHTML='';'1234567890'.split('').forEach(d=>p.append(btn(d,()=>{ctx.tgt=(ctx.tgt+d).slice(0,5);syncF();ctxChanged()},'chip kd')));p.append(btn('⌫',()=>{ctx.tgt=ctx.tgt.slice(0,-1);syncF();ctxChanged()},'chip kd'),btn('C',()=>{ctx.tgt='';syncF();ctxChanged()},'chip kd'))}
+
+// ===== правила =====
+function saveB(){sv('rules2',bubbles);RULES=flat(bubbles)}
+function renderRules(){const q=norm($('#rq').value),bc=$('#bch');bc.innerHTML='';
+ if(rb>=bubbles.length)rb=0;bubbles.forEach((b,i)=>{const x=el('button','bub'+(i===rb&&!q?' on':''),b.n+' · '+b.items.length);x.onclick=()=>{rb=i;$('#rq').value='';renderRules()};bc.append(x)});
+ const L=$('#rlist');L.innerHTML='';const items=q?bubbles.flatMap(b=>b.items.map(r=>[b,r])).filter(([b,r])=>norm(r[0]+r[1]+r[2]+r[7]+r[8].join(' ')).includes(q)):(bubbles[rb]?bubbles[rb].items.map(r=>[bubbles[rb],r]):[]);
+ if(!items.length)L.append(el('p','mu','Пунктов нет.'));
+ items.forEach(([b,r])=>{const d=el('div','ri'),x=el('div','rb');x.innerHTML='<div class="rn">п. '+E(r[2])+' · '+E(r[1])+'</div><div class="mu">/'+E(r[3])+' '+E(rng(r))+(r[7]?' · '+E(r[7]):'')+(q?' · '+E(b.n):'')+'</div>';
+  d.append(x,btn('✎',()=>editRule(b,r),'mini'),btn('✕',bt=>{if(bt.dataset.s){b.items.splice(b.items.indexOf(r),1);saveB();renderRules();renderP2()}else{bt.dataset.s=1;bt.textContent='точно?'}},'mini gh'));L.append(d)})}
+function editRule(b,r){ed={b,r};$('#red').classList.remove('hid');$('#redh').textContent=r?'Правка пункта':'Новый пункт';
+ const v=r||['','','','mute',0,0,'мин','',[],'',0];$('#e_pt').value=v[2];$('#e_n').value=v[1];$('#e_c').value=v[3];$('#e_u').value=v[6];$('#e_a').value=v[4]||'';$('#e_b').value=v[5]||'';$('#e_note').value=v[7];$('#e_kw').value=v[8].join(', ');
+ const s=$('#e_bub');s.innerHTML='';bubbles.forEach((x,i)=>{const o=el('option','',x.n);o.value=i;s.append(o)});s.value=bubbles.indexOf(b);$('#red').scrollIntoView({behavior:'smooth',block:'nearest'})}
+$('#addr').onclick=()=>editRule(bubbles[rb],null);$('#ecancel').onclick=()=>{ed=null;$('#red').classList.add('hid')};
+$('#esave').onclick=()=>{if(!ed)return;const n=$('#e_n').value.trim();if(!n)return;
+ const code=ed.r?ed.r[0]:'u'+Date.now().toString(36);const nr=[code,n,$('#e_pt').value.trim(),$('#e_c').value,+$('#e_a').value||0,+$('#e_b').value||0,$('#e_u').value,$('#e_note').value.trim(),$('#e_kw').value.split(',').map(x=>x.trim()).filter(Boolean),ed.r?ed.r[9]:'',0];
+ if(ed.r)ed.b.items.splice(ed.b.items.indexOf(ed.r),1);bubbles[+$('#e_bub').value].items.push(nr);saveB();ed=null;$('#red').classList.add('hid');renderRules();renderP2()};
+$('#nbadd').onclick=()=>{const n=$('#nb').value.trim();if(!n||bubbles.some(b=>b.n===n))return;bubbles.push({n,items:[]});rb=bubbles.length-1;$('#nb').value='';saveB();renderRules();renderP2()};
+$('#bren').onclick=()=>{const n=$('#nb').value.trim();if(!n||!bubbles[rb])return;bubbles[rb].n=n;$('#nb').value='';saveB();renderRules();renderP2()};
+$('#bdel').onclick=b=>{const t=b.target;if(!bubbles[rb])return;if(t.dataset.s){bubbles.splice(rb,1);rb=0;t.dataset.s='';t.textContent='удалить пузырёк';saveB();renderRules();renderP2()}else{t.dataset.s=1;t.textContent='точно удалить?'}};
+$('#rreset').onclick=b=>{const t=b.target;if(t.dataset.s){bubbles=defBubbles();rb=0;t.dataset.s='';t.textContent='сбросить всё к умолчанию';saveB();renderRules();renderP2()}else{t.dataset.s=1;t.textContent='точно сбросить?'}};
+$('#rq').oninput=renderRules;
+
+// ===== журнал =====
+const JN={rep:'Репорт',pun:'Наказание',fv:'ФВ',ev:'Мероприятие',ot:'Другое'};
+function renderJ(){const t=today(),v=jr.filter(x=>jf==='a'||x.d===t);
+ $('#sm').innerHTML=['rep','pun','fv','ev'].map(k=>'<div><b>'+nToday(k)+'</b>'+JN[k]+'</div>').join('');
+ const L=$('#jl');L.innerHTML='';if(!v.length)L.append(el('div','empty','Пока пусто.'));
+ v.slice(-150).reverse().forEach(x=>{const d=el('div','jr'),s=el('span','sp');s.innerHTML='<b>'+E(JN[x.k]||x.k)+'</b> · '+E(x.l);
+  d.append(el('span','tm',(jf==='a'?x.d.slice(5)+' ':'')+x.t),s,btn('✕',()=>{const i=jr.indexOf(x);if(i>=0)jr.splice(i,1);sv('jr',jr);renderCnt();renderJ()},'gh mini'));L.append(d)});
+ $('#jt').classList.toggle('on',jf==='t');$('#ja').classList.toggle('on',jf==='a')}
+$('#jt').onclick=()=>{jf='t';renderJ()};$('#ja').onclick=()=>{jf='a';renderJ()};
+$('#jadd').onclick=()=>{const x=$('#jtx').value.trim();if(!x)return;J($('#jk').value,x);$('#jtx').value=''};
+$('#jc').onclick=b=>{cp(jr.filter(x=>jf==='a'||x.d===today()).map(x=>x.d+' '+x.t+' '+(JN[x.k]||x.k)+': '+x.l).join('\n'));flash(b.target)};
+$('#jx').onclick=()=>{jr=jr.filter(x=>x.d!==today());sv('jr',jr);renderCnt();renderJ()};
+
+// ===== настройки =====
+function syncRej(){if(A&&A.setRej)A.setRej(rejTpl.replace(/\{reason\}/g,rej[0]||'').replace(/[:,\s]+$/,''))}
+$('#rtpl').value=rejTpl;$('#rtpl').oninput=e=>{rejTpl=e.target.value;sv('rejTpl',rejTpl);syncRej()};
+$('#rrs').value=rej.join('\n');$('#rrs').oninput=e=>{rej=e.target.value.split('\n').map(x=>x.trim()).filter(Boolean);sv('rej',rej);syncRej();renderAL()};
+function renderTap(){const s=$('#tapst');if(!s)return;
+ if(!A||!A.tapState){s.innerHTML='<div class="mu">Доступно в приложении на телефоне</div>';return}
+ const m={};(A.tapState()||'').split(';').forEach(p=>{const kv=p.split('=');m[kv[0]]=kv[1]});
+ const row=(t,ok)=>'<div class="st"><i class="'+(ok?'g':'')+'"></i>'+t+'</div>';
+ s.innerHTML=row('Служба доступности «GM Admin — тапы» включена',m.svc==='1')+row('Точки чата заданы ('+(m.land==='1'?'альбом':'портрет')+')',m.pts==='1')+row('Клавиатура GM Admin сейчас активна (чат открыт)',m.ime==='1')}
+$('#tsvc').onclick=()=>{try{A.openAccessibility()}catch(e){}};
+$('#tcal').onclick=()=>{try{A.calibrate()}catch(e){}};
+$('#tref').onclick=renderTap;
+// статус чата в шапке
+function chatState(){if(!A||!A.tapState||KB)return;const m={};(A.tapState()||'').split(';').forEach(p=>{const kv=p.split('=');m[kv[0]]=kv[1]});
+ $('#cs').textContent=m.ime==='1'?'✎ чат открыт — пишу прямо в него':(m.svc==='1'&&m.pts==='1'?'чат закрыт — открою сам':'чат закрыт — команды копируются')}
+
+// ===== события из чата =====
+let bto;function banner(h,f,c){const b=$('#banner');b.innerHTML=h;b.className='banner'+(c?' '+c:'');b.onclick=()=>{b.classList.add('hid');f&&f()};clearTimeout(bto);bto=setTimeout(()=>b.classList.add('hid'),12000)}
+window.gmReport=function(line){const p=parseChat(line);if(!p.rep&&!p.tgt)return;if(reports.some(r=>r.line===line))return;reports.push({line,p});if(reports.length===1){sel=0;setCtx(p)}renderR1();
+ banner('<b>📨 Новый репорт</b> · '+E(p.name)+' ['+E(p.rep||p.tgt)+']'+(p.msg?' · «'+E(p.msg.slice(0,60))+'»':'')+(p.ids.length&&p.rep?' · в тексте ID: '+E(p.ids.join(', ')):''),()=>{switchTab('1');showSeg('r')})};
+window.gmAdminCmd=function(sender,text){const c=adminCmd(text);if(!c)return;const need=LV[c.cmd];if(!need)return;
+ if(lvl<need){ign.unshift(c.text+' (нужен '+need+' ур.)');renderAL();return}
+ if(reqs.some(q=>q.sender===sender&&q.text===c.text))return;
+ reqs.unshift({sender,text:c.text,t:hhmm()});renderAL();
+ banner('<b>📋 Форма от '+E(sender)+'</b> · '+E(c.text)+' <small style="color:#fff">нажми — принять / отказать</small>',()=>{switchTab('1');showSeg('f')},'bgreen')};
+window.gmFormGone=function(sender,text){const i=reqs.findIndex(q=>q.sender===sender&&q.text===text);if(i>=0){reqs.splice(i,1);renderAL()}};
+window.gmJ=function(k,l){J(k,l)};
+window.gmGoto=function(id){go(id)};
+window.gmLog=function(k,ts,x){addLog(k,ts,x)};
+window.gmReload=function(){if(A){if(A.setLv)A.setLv(JSON.stringify(LV));if(A.setLvl)A.setLvl(lvl);if(A.setAuto)A.setAuto(auto);syncRej();
+ if(A.getCtx){const c=A.getCtx();if(c){const[a,b]=c.split('|');ctx.rep=a||'';ctx.tgt=b||'';syncF()}}
+ if(A.queue)(A.queue()||'').split('\n').filter(Boolean).forEach(l=>{if(!reports.some(r=>r.line===l))reports.push({line:l,p:parseChat(l)})});
+ if(A.forms)(A.forms()||'').split('\n').filter(Boolean).forEach(l=>{const[s,...r]=l.split('\t'),t=r.join('\t');if(s&&t&&!reqs.some(q=>q.sender===s&&q.text===t))reqs.push({sender:s,text:t,t:'—'})});
+ if(A.takeJ)(A.takeJ()||'').split('\n').filter(Boolean).forEach(l=>{const[k,...r]=l.split('\t');jr.push(E0(k,r.join('\t')))});sv('jr',jr);
+ if(A.logs){cl=(A.logs()||'').split('\n').filter(Boolean).map(s=>{const p=s.split('\t');return{k:p[0],ts:p[1],x:p.slice(2).join('\t')}})}}
+ renderCnt();renderR1();renderAL();renderP2();renderB();renderJ();renderTick();renderTap();chatState();if(seg1==='c')renderChat()};
+
+// ===== демо =====
+const DEMO=['02:43 Daniil_Lotus[207]: Help [К-во репорта: 1]','02:44 Mark_Chesterfield[204]: игрок 54 дм, убил меня без причины [К-во репорта: 2]','02:46 Vovka_Spidov[76]: как вступить во фракцию? [К-во репорта: 1]','02:47 Evgen_Suchkov[101]: игрок 12 читер, летает [К-во репорта: 1]'];
+const DADM=[['Sofia_Nazarova','/warn 101 читы'],['Drey_Anarcy','/jail 54 30 дм'],['Ramil_Lyapotov','/mute 54 20 оскорбление'],['Mark_Soloviev','/offjail Vovka_Spidov 40 нонрп']];
+const DCH=[['chat','Vovka_Spidov[76] говорит: продам машину'],['adm','<ADM> (3) Sofia_Nazarova[61]: проверьте 101'],['rep','Daniil_Lotus[207]: Help [К-во репорта: 1]'],['chat','Объявление: Продам а/м. Цена: 3.000.000']];
+let di=0,da=0,dc=0;$('#sim').onclick=()=>window.gmReport(DEMO[di++%DEMO.length]);
+$('#simA').onclick=()=>{const x=DADM[da++%DADM.length];window.gmAdminCmd(x[0],x[1])};
+$('#simC').onclick=()=>{for(let i=0;i<2;i++){const x=DCH[dc++%DCH.length];addLog(x[0],hms(),x[1])}};
+
+// ===== клавиатура ABC =====
+let lang='ru',shift=false;const KL={ru:['йцукенгшщзхъ','фывапролджэ','ячсмитьбю'],en:['qwertyuiop','asdfghjkl','zxcvbnm']};
+const tk=t=>{try{return !!(A&&A.type&&A.type(t,false))}catch(e){return false}};
+function press(c){tk(c);if(shift){shift=false;drawK()}}
+function drawK(){const k=$('#kbd');k.innerHTML='';const row=a=>{const d=el('div','kr');a.forEach(x=>d.append(x));k.append(d)};const key=(c,f,cl)=>btn(c,f||(()=>press(c)),'key '+(cl||''));
+ row('1234567890'.split('').map(c=>key(c)));KL[lang].forEach(r=>row(r.split('').map(c=>{const u=shift?c.toUpperCase():c;return key(u,()=>press(u))})));
+ row([key('⇧',()=>{shift=!shift;drawK()},'w'+(shift?' on':'')),key(lang==='ru'?'RU':'EN',()=>{lang=lang==='ru'?'en':'ru';drawK()},'w'),key('/'),key('␣',()=>tk(' '),'sp'),key('.'),key('_'),key('⌫',()=>{try{A.del(1)}catch(e){}},'w'),key('⏎',()=>{try{A.enter()}catch(e){}},'w pri')])}
+$('#kswitch').onclick=()=>{try{A.switchIme()}catch(e){}};
+
+// ===== общее =====
+function switchTab(t){curTab=t;document.querySelectorAll('#tabs button').forEach(x=>x.classList.toggle('on',x.dataset.t===t));['1','2','3','5','6','k'].forEach(s=>$('#t-'+s).classList.toggle('hid',s!==t));
+ if(t==='1'&&seg1==='c')renderChat();if(t==='5')renderJ();if(t==='6')renderTap();window.scrollTo(0,0)}
+document.querySelectorAll('#tabs button').forEach(b=>b.onclick=()=>switchTab(b.dataset.t));
+$('#lvl').value=lvl;$('#lvl').onchange=e=>{lvl=+e.target.value;sv('lvl',lvl);if(A&&A.setLvl)A.setLvl(lvl);renderB();renderAL()};
+$('#off').checked=off;$('#off').onchange=e=>{off=e.target.checked;sv('off',off);renderP2();renderB()};
+$('#as').checked=auto;$('#as').onchange=e=>{auto=e.target.checked;sv('as',auto);if(A&&A.setAuto)A.setAuto(auto)};
+// Поля ввода в панели поверх игры берут фокус у игры (чат игры при этом закрывается), поэтому
+// ID вводится экранной цифровой панелью, а фокус отдаём окну только для текстовых полей и сразу возвращаем.
+if(A&&A.focus&&!KB){document.addEventListener('focusin',e=>{if(e.target.matches('input:not([type=checkbox]):not([readonly]),textarea'))A.focus(true)});document.addEventListener('focusout',()=>setTimeout(()=>{if(!document.activeElement||!document.activeElement.matches('input,textarea'))A.focus(false)},250))}
+if(A&&!KB)setInterval(()=>{chatState();if(curTab==='6')renderTap()},2000);
+renderCnt();renderR1();renderAL();renderF();renderP2();renderRules();renderChat();renderJ();drawK();renderPad();syncF();renderTap();showSeg('r');if(A)gmReload();
+</script></main></body></html>

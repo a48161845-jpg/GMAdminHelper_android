@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tap_label">GM Admin — тапы</string>
+    <string name="tap_desc">Только делает тапы по кнопке чата и полю ввода, чтобы заново открыть чат игры после отправки. Экран и ввод не читает.</string>
+</resources>
