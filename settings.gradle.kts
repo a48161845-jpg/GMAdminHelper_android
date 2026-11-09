@@ -1,4 +1,21 @@
-pluginManagement { repositories { google(); mavenCentral(); gradlePluginPortal() } }
-dependencyResolutionManagement { repositories { google(); mavenCentral() } }
+pluginManagement {
+repositories {
+google()
+mavenCentral()
+gradlePluginPortal()
+}
+}
+
+dependencyResolutionManagement {
+repositories {
+google()
+mavenCentral()
+maven {
+url 'https://jitpack.io'
+}
+}
+}
+
 rootProject.name = "GMAdminHelper"
+
 include(":app")
