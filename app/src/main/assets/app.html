@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="ru"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>GM Admin Helper</title>
+<style>
+:root{--bg:#0d1016;--card:#151a23;--el:#1e2530;--el2:#2a3342;--tx:#eef1f6;--mu:#8d97a8;--bd:#252d3b;--ac:#5eead4;--acb:#0f766e;--ok:#34d399;--er:#f0616d;--wr:#f5b84b;--pk:#b4506a}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--tx);font:15px/1.4 system-ui,-apple-system,Roboto,sans-serif}
+#app{display:flex;flex-direction:column;height:100%}
+header{flex:none;padding:14px 16px 10px;display:flex;align-items:center;gap:12px;background:linear-gradient(180deg,#141b2c,var(--bg))}
+.logo{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#5f7df0,#8a63e6);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#fff;box-shadow:0 4px 14px #5f7df044}
+header b{font-size:18px;display:block}header small{color:var(--mu);font-size:12.5px}
+#lv{margin-left:auto;background:var(--el);border-radius:12px;padding:5px 11px;font-size:13px;color:var(--ac);font-weight:600}
+main{flex:1;overflow-y:auto;padding:4px 12px 90px;-webkit-overflow-scrolling:touch}
+nav{flex:none;position:fixed;left:0;right:0;bottom:0;display:flex;gap:4px;padding:6px 8px calc(6px + env(safe-area-inset-bottom));background:#0f1420ee;backdrop-filter:blur(10px);border-top:1px solid var(--bd);z-index:20}
+nav button{flex:1;background:transparent;border:0;border-radius:14px;padding:12px 2px;color:var(--mu);font:inherit;font-size:11.5px;display:flex;flex-direction:column;align-items:center;gap:2px}
+nav button.on{background:var(--el2);color:var(--tx);font-weight:600}
+button{font:inherit;color:var(--tx);cursor:pointer}
+.card{background:var(--card);border-radius:18px;padding:14px;margin-bottom:12px}
+h3{margin:0 0 10px;font-size:16px}.mu{color:var(--mu)}.sm{font-size:12.5px}.hid{display:none!important}
+.lbl{color:var(--mu);font-size:12px;text-transform:uppercase;letter-spacing:.5px;margin:12px 0 5px}
+.b{background:var(--el);border:0;border-radius:12px;padding:11px 15px;margin:0 6px 6px 0;min-height:44px;transition:transform .08s,filter .08s}.b:active{transform:scale(.97);filter:brightness(1.25)}
+.b.sm{min-height:34px;padding:6px 11px;font-size:13.5px}
+.pri{background:var(--acb)!important;color:#f2f5ff!important;font-weight:600}.no{background:#7a2f37!important;color:#fff!important}.ok{background:#1f6b4a!important;color:#fff!important}
+.ghost{background:transparent!important;border:1px solid var(--bd)!important;color:var(--mu)!important}
+.wide{display:block;width:100%;text-align:left;margin-right:0}
+.c{background:var(--el);border:0;border-radius:18px;padding:8px 14px;margin:0 6px 7px 0;font-size:14px}.c.on{background:var(--acb);color:#f2f5ff}
+.chips{display:flex;flex-wrap:wrap;margin-bottom:4px}
+.chipsx{display:flex;overflow-x:auto;gap:0;padding-bottom:4px;scrollbar-width:none}.chipsx::-webkit-scrollbar{display:none}.chipsx .c{flex:none}
+input,select,textarea{font:inherit;color:var(--tx);background:var(--bg);border:1px solid var(--bd);border-radius:12px;padding:11px 12px;width:100%;outline:0;margin-bottom:8px}
+input:focus,select:focus,textarea:focus{border-color:var(--ac)}input[type=checkbox]{width:20px;height:20px;margin:0 10px 0 0;accent-color:#5f7df0}input[type=range]{padding:0;accent-color:#7c9cff}
+textarea{resize:vertical;line-height:1.4}
+label.k{display:flex;align-items:center;margin:9px 0}
+.f2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tag{font-size:11.5px;padding:2px 9px;border-radius:10px;background:var(--bg);color:var(--mu);white-space:nowrap}
+.tag.mute,.tag.rmute{color:#e0a23b}.tag.jail{color:#e2915f}.tag.ban,.tag.sban{color:#e0677a}.tag.warn{color:#8fb4f0}.tag.g{color:#5fd0a0}.tag.a{color:var(--ac)}
+pre{white-space:pre-wrap;word-break:break-word;background:var(--bg);border-radius:12px;padding:11px;font:12px ui-monospace,Consolas,monospace;color:#b9bfd0;margin:8px 0;max-height:240px;overflow:auto}
+.ib{width:36px;height:36px;border-radius:11px;border:0;background:var(--el);color:var(--tx);font-size:14px;display:inline-flex;align-items:center;justify-content:center;flex:none;padding:0}
+.ib:active{background:var(--el2)}.ib.on{background:var(--acb)}.ib.red{background:#5a2830}
+/* главная */
+.step{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--bd)}.step:last-of-type{border:0}
+.st{width:26px;height:26px;border-radius:50%;background:var(--el);display:flex;align-items:center;justify-content:center;font-size:14px;flex:none;color:var(--mu)}.st.ok{background:#1f6b4a;color:#fff}
+.step .t{flex:1;min-width:0}.step .t b{font-weight:600;display:block}.step .t small{color:var(--mu);font-size:12.5px}
+.hero{display:flex;gap:8px}.hero .b{flex:1;margin:0;text-align:center;padding:14px 8px}
+.kp{display:flex;gap:8px;margin-bottom:10px}.kp>div{flex:1;background:var(--bg);border-radius:14px;padding:10px 6px;text-align:center}.kp .n{font-size:26px;font-weight:700;line-height:1.1}
+.wk{display:flex;gap:6px;align-items:flex-end;height:70px}
+.wk>div{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:3px;height:100%}.wk .bar{width:70%;border-radius:5px;background:var(--acb);min-height:3px}.wk small{font-size:11px;color:var(--mu)}
+/* правила и списки */
+.rule{padding:0;overflow:hidden}.rh{display:flex;align-items:center;gap:6px;padding:10px 10px 10px 14px}.rh .rt{flex:1;min-width:0}.rh .rt b{display:block;font-size:15.5px}
+.rt .meta{display:flex;gap:6px;align-items:center;margin-top:3px;flex-wrap:wrap}
+.pt{display:flex;align-items:center;flex-wrap:wrap;gap:6px 8px;padding:9px 8px 9px 14px;border-top:1px solid var(--bd)}.pt .pn{min-width:34px;color:var(--ac);font-weight:700;font-size:14px}.acts{display:flex;gap:5px;margin-left:auto}
+.pt .nm{flex:1 1 120px;min-width:0}.pt .nm small{display:block;color:var(--mu);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.qa{border-top:1px dashed var(--bd);padding:12px 12px 6px;background:#0f1522}.qa .grid{display:grid;grid-template-columns:70px 1fr;gap:8px}
+.qa .g3{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:8px}
+.cr{display:flex;align-items:center;gap:6px;padding:10px 8px 10px 14px;border-top:1px solid var(--bd)}.cr:first-child{border-top:0}
+.cr{flex-wrap:wrap}.cr .x{flex:1 1 150px;min-width:0}.cr .x b{font-weight:600}.cr .x code{display:block;color:var(--mu);font:12px ui-monospace,Consolas,monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:2px}
+.seg{display:flex;gap:4px;background:var(--card);border-radius:14px;padding:4px;margin:6px 0 12px}.seg button{flex:1;background:transparent;border:0;border-radius:11px;padding:9px;color:var(--mu)}.seg button.on{background:var(--el2);color:var(--tx);font-weight:600}
+.top{display:flex;align-items:center;gap:8px;margin:8px 0 12px}.top h2{margin:0;font-size:19px;flex:1}
+.bar2{position:fixed;left:0;right:0;bottom:0;padding:10px 12px calc(10px + env(safe-area-inset-bottom));background:#0b0e14f2;border-top:1px solid var(--bd);display:flex;gap:8px;z-index:30}.bar2 .b{flex:1;margin:0}
+.empty{text-align:center;color:var(--mu);padding:26px 10px}
+#toast.act{pointer-events:auto}#toast .undo{color:var(--ac);padding:4px 6px;margin-left:4px;border-radius:8px;background:#ffffff14;cursor:pointer}
+#toast{position:fixed;left:50%;bottom:92px;transform:translateX(-50%);background:#2b3550;color:#fff;border-radius:14px;padding:10px 18px;font-size:14px;z-index:50;opacity:0;pointer-events:none;transition:opacity .2s;max-width:88%;text-align:center}#toast.on{opacity:1}
+details{margin-bottom:12px}details>summary{list-style:none;cursor:pointer;background:var(--card);border-radius:18px;padding:14px;font-weight:600;display:flex;align-items:center}details>summary::after{content:"▸";margin-left:auto;color:var(--mu)}details[open]>summary{border-radius:18px 18px 0 0}details[open]>summary::after{content:"▾"}details>div{background:var(--card);border-radius:0 0 18px 18px;padding:0 14px 14px}
+.lgst{font-size:13px;white-space:pre-wrap;color:var(--mu);margin-top:8px}.lgst.good{color:var(--ok)}.lgf{display:flex;gap:8px;align-items:flex-start;padding:8px 0;border-top:1px solid var(--bd)}.lgf.on{background:rgba(47,168,120,.08)}.lgf .x{flex:1;min-width:0}.lgf pre{margin:4px 0 0;font-size:11px;white-space:pre-wrap;word-break:break-all;color:var(--mu)}
+
+/* ===== редизайн 4.8: графит + бирюза, мягкие карточки, пилюли ===== */
+.card{border:1px solid var(--bd);border-radius:18px}
+.b,.tile,.c,.hb,.ib{border:1px solid transparent}
+.b{border-radius:12px;font-weight:500}
+.pri{background:linear-gradient(180deg,#14918a,#0f766e)!important;color:#fff!important;box-shadow:0 1px 0 #ffffff22 inset}
+.ghost{border:1px solid var(--bd)!important}
+.c{border-radius:999px}.c.on{background:var(--acb);color:#fff;border-color:#2dd4bf55}
+.lbl,.sec{letter-spacing:.08em;font-weight:600}
+input:focus,select:focus,textarea:focus{border-color:var(--ac);box-shadow:0 0 0 3px #5eead422}
+.tag{border:1px solid var(--bd)}
+
+header{background:linear-gradient(180deg,#12302f,var(--bg) 90%)}
+.logo{background:linear-gradient(135deg,#14b8a6,#0f766e);box-shadow:0 6px 18px #14b8a644}
+#lv{background:var(--el);border:1px solid var(--bd);border-radius:999px;color:var(--ac)}
+nav{background:#0d1016ee;border-top:1px solid var(--bd)}
+nav button{border-radius:16px}nav button.on{background:var(--acb);color:#fff}
+.b{transition:none}.b:active{transform:none;filter:none;background:var(--el2)}
+input[type=checkbox],input[type=range]{accent-color:#14b8a6}
+
+/* ===== настройки 5.3: ряды «название — подпись — переключатель», переключатели-пилюли, схема экрана ===== */
+.scard{padding:6px 14px 6px}
+.scard .sh{padding:10px 0 6px}.scard .sh h3{margin:0;font-size:16px}.scard .sh small{display:block;color:var(--mu);font-size:12.5px;line-height:1.4;margin-top:3px}
+.sr{display:flex;align-items:center;gap:12px;padding:13px 0;border-top:1px solid var(--bd)}
+.sh+.sr{border-top:0}
+.sr .sx{flex:1;min-width:0}.sr .sx b{display:block;font-weight:600;font-size:14.5px}.sr .sx small{display:block;color:var(--mu);font-size:12.5px;line-height:1.4;margin-top:2px}
+.sr.stack{flex-direction:column;align-items:stretch;gap:9px}
+.sr input:not([type=checkbox]):not([type=range]){margin:0}.sr .num{width:92px;flex:none;text-align:center}
+.sr .b{margin:0}.sr .hero{margin:0}.sr .chips{margin:0}.sr .sv{color:var(--ac);font-weight:600}
+.sg{display:flex;gap:3px;background:var(--bg);border:1px solid var(--bd);border-radius:12px;padding:3px}
+.sg button{border:0;background:transparent;color:var(--mu);border-radius:9px;padding:8px 12px;font-size:13px;white-space:nowrap}
+.sg button.on{background:var(--acb);color:#fff;font-weight:600}
+.sg.full{width:100%}.sg.full button{flex:1;padding:9px 4px}
+.sw{position:relative;width:48px;height:28px;flex:none;display:inline-block}
+.sw input[type=checkbox]{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;z-index:1;cursor:pointer}
+.sw i{position:absolute;inset:0;background:var(--el2);border-radius:999px;transition:background .15s}
+.sw i::after{content:"";position:absolute;left:3px;top:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:transform .15s}
+.sw input:checked+i{background:var(--acb)}.sw input:checked+i::after{transform:translateX(20px)}
+.sws{display:flex;gap:8px;flex-wrap:wrap}
+.swc{width:30px;height:30px;border-radius:50%;border:0;padding:0;box-shadow:inset 0 0 0 1px #ffffff22}
+.swc.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px #fff}
+.sd{border-top:1px solid var(--bd);margin:0}
+.sd>summary{background:transparent;border-radius:0;padding:13px 0;font-size:14.5px}.sd[open]>summary{border-radius:0}
+.sd>div{background:transparent;border-radius:0;padding:0 0 10px}
+.sd .lbl{margin-top:10px}
+.snote{padding:6px 0 10px;line-height:1.45}
+.cp{margin:0 auto;width:100%;max-width:340px}
+.cpf{position:relative;width:100%;aspect-ratio:16/9;border-radius:14px;overflow:hidden;background:linear-gradient(160deg,#1c2b3b,#0d151e 75%);border:1px solid var(--bd)}
+.cpf::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,#ffffff07 0 1px,transparent 1px 22px),repeating-linear-gradient(90deg,#ffffff07 0 1px,transparent 1px 22px)}
+.cpr{position:absolute;border:2px solid var(--ac);background:#5eead41c;border-radius:6px;box-shadow:0 0 0 999px #05080dbb;padding:4px 5px;overflow:hidden}
+.cpr i{display:block;height:3px;border-radius:2px;background:#f5a04b;margin:0 0 4px;opacity:.9}
+.cpt{position:absolute;right:8px;bottom:6px;font-size:11px;color:#ffffff55;letter-spacing:.08em;text-transform:uppercase}
+.cpn{color:var(--mu);font-size:12.5px;margin-top:8px}
+.cg{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:4px}
+.cgi{display:block}.cgi small{display:block;color:var(--mu);font-size:11.5px;margin-bottom:3px}.cgi input{margin:0;text-align:center;padding:10px 4px}
+
+.hcard .hst{font-size:20px;font-weight:700;margin-bottom:2px}.hcard .hl{margin-bottom:10px}
+.kp>div{background:var(--bg)}.kp .xs,.mu.xs{font-size:11px}
+.wk .bar{display:flex;flex-direction:column-reverse;overflow:hidden}.wk .bar i{display:block}.wk small.tdy{color:var(--ac);font-weight:700}
+.kv{display:flex;gap:8px;margin:10px 0 6px}.kv>div{flex:1;background:var(--bg);border-radius:12px;padding:8px 10px;display:flex;flex-direction:column;gap:2px;font-size:12.5px}.kv>div:empty{display:none}.kv b{font-size:16px}
+.tips .tip{padding:8px 0;border-top:1px solid var(--bd);display:flex;flex-direction:column;gap:2px}.tips .tip:first-of-type{border:0}
+
+/* строки списков: сжатые, действия раскрываются касанием */
+.cr,.pt{cursor:pointer}
+.cr .acts,.pt .acts{display:none;flex:0 0 100%;margin:2px 0 0;justify-content:flex-end;padding-top:6px;border-top:1px dashed var(--bd)}
+.cr.open .acts,.pt.open .acts{display:flex}
+.cr.open,.pt.open{background:#ffffff08}
+.cr .acts .ib,.pt .acts .ib{width:42px;height:34px}
+.cr .x b{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.cr::after{content:'⋯';color:var(--mu);margin-left:auto;font-size:18px;line-height:1;padding:0 4px}
+.cr.open::after{content:'▴'}
+.cr{padding:9px 8px 9px 14px}.pt{padding:8px 8px 8px 14px}
+.rule .rh .ib{width:34px;height:34px}
+
+.posw{display:flex;align-items:center;gap:12px;margin-top:8px}.posg{display:grid;grid-template-columns:repeat(3,44px);gap:4px}
+.posg button,.posr{border:1px solid var(--bd);background:var(--bg);color:var(--tx);border-radius:10px;height:36px;font-size:16px}
+.posr{padding:0 14px;font-size:13px}.posg button.on,.posr.on{background:var(--acb);color:#fff;border-color:transparent}
+</style></head><body>
+<div id="app">
+<header><div class="logo">GM</div><div><b>GM Admin Helper</b><small id="sub">помощник администратора</small></div><div id="lv"></div></header>
+<main id="main"></main>
+</div>
+<nav id="nav"></nav>
+<div id="toast"></div>
+<script src="core.js"></script>
+<script>
+const $=s=>document.querySelector(s);
+const A=window.Android||null;
+const el=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
+const btn=(t,f,c)=>{const b=el('button','b '+(c||''),t);b.onclick=()=>f(b);return b};
+const ib=(t,f,c,title)=>{const b=el('button','ib '+(c||''),t);if(title)b.title=title;b.onclick=e=>{e.stopPropagation();f(b)};return b};
+const chip=(t,f,on)=>{const b=el('button','c'+(on?' on':''),t);b.onclick=()=>f(b);return b};
+let tt;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),1800)}
+/* удаление: сразу, одним касанием, с кнопкой «Отменить» в уведомлении (вместо двойного нажатия) */
+let utt;
+function toastUndo(msg,undo){const t=$('#toast');t.textContent='';t.append(msg+'  ');const u=el('b','undo','Отменить');u.onclick=()=>{undo();t.classList.remove('on')};t.append(u);t.classList.add('on','act');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on','act'),5000)}
+function two(label,f,cls){const b=el('button','ib red '+(cls||''),label);b.title='Удалить';
+ b.onclick=e=>{e.stopPropagation();
+  const snap=JSON.stringify({rules,reasons,cmds,ans,btns});
+  f();
+  toastUndo('Удалено',()=>{try{const o=JSON.parse(snap);rules=o.rules;reasons=o.reasons;cmds=o.cmds;ans=o.ans;btns=o.btns;saveModel();saveCmds();saveAns();saveBtns();render()}catch(x){toast('Не удалось отменить')}})};
+ return b}
+function gd(k,d){try{const v=A&&A.getData?A.getData(k):localStorage.getItem('gm_'+k);return v?JSON.parse(v):d}catch(e){return d}}
+function sd(k,v){try{const s=JSON.stringify(v);if(A&&A.setData)A.setData(k,s);else localStorage.setItem('gm_'+k,s)}catch(e){}}
+let cfg,rules,reasons,cmds,ans,btns;
+function loadAll(){cfg=Object.assign({},DEF_CFG,gd('cfg',{}));cfg.replies=Object.assign({},DEF_CFG.replies,cfg.replies||{});
+ const m=loadModel(gd,sd);rules=m.rules;reasons=m.reasons;cmds=loadCmds(gd,sd);ans=normAns(gd('answers',null));btns=normBtns(gd('btns',null));applyTheme(cfg)}
+loadAll();
+const saveCfg=()=>{sd('cfg',cfg);try{A&&A.cfgChanged&&A.cfgChanged()}catch(e){}};
+const saveModel=()=>{sd('rules',rules);sd('reasons',reasons)};
+const saveCmds=()=>sd('cmds',cmds),saveAns=()=>sd('answers',ans),saveBtns=()=>sd('btns',btns);
+window.gmBk=()=>{if(tab==='s')render()};window.gmRestored=ok=>{if(ok){loadAll();ed=null;render(true)}};
+const act=n=>{try{A&&A.act&&A.act(n)}catch(e){}};
+let bsub='rep',tab='h',ed=null,edKind='',rcat='Все',rq='',ropen=new Set(rules.length?[rules[0].id]:[]),lvv=1,csub='c',acat='',qaCmd={};
+const TABS=[['h','','Главная'],['r','','Правила'],['c','','Команды'],['s','','Настройки']];
+function nav(){const n=$('#nav');n.innerHTML='';TABS.forEach(([k,i,t])=>{const b=el('button',k===tab?'on':'');b.append(t);b.onclick=()=>{tab=k;ed=null;render(true)};n.append(b)})}
+/* раскрытие строк списка (команды, пункты правил, ответы, кнопки): запоминается между перерисовками */
+let rowKey='';
+const rowK=r=>(r.closest('.card')?.firstElementChild?.textContent||'').slice(0,12)+'|'+(r.querySelector('b,.nm')?.textContent||r.textContent).slice(0,40);
+document.addEventListener('click',e=>{if(e.target.closest('button,input,textarea,select,a'))return;const r=e.target.closest('.cr,.pt');if(!r||!r.querySelector('.acts'))return;const was=r.classList.contains('open');document.querySelectorAll('.cr.open,.pt.open').forEach(x=>x.classList.remove('open'));if(!was){r.classList.add('open');rowKey=rowK(r)}else rowKey=''});
+let roT;new MutationObserver(()=>{clearTimeout(roT);roT=setTimeout(()=>{if(rowKey&&!document.querySelector('.cr.open,.pt.open'))reopenRow()},0)}).observe(document.documentElement,{childList:true,subtree:true});
+function reopenRow(){if(!rowKey)return;for(const r of document.querySelectorAll('.cr,.pt')){if(rowK(r)===rowKey){r.classList.add('open');return}}}
+function render(top){nav();const m=$('#main'),st=m.scrollTop;m.innerHTML='';document.body.dataset.form=ed?'1':'';
+ ({h:pHome,r:pRules,c:pCmds,s:pSet})[tab](m);$('#lv').textContent='Ур. '+cfg.lvl;
+ const old=document.querySelector('.bar2');if(old)old.remove();if(ed&&m._bar)document.body.append(m._bar);
+ m.scrollTop=top?0:st}
+const field=(host,label,node,hint)=>{host.append(el('div','lbl',label),node);if(hint)host.append(el('div','mu sm',hint));return node};
+const inp=(v,ph,t)=>{const i=el('input');i.value=v==null?'':v;if(ph)i.placeholder=ph;if(t)i.type=t;if(t==='number')i.inputMode='numeric';return i};
+const sel=(opts,v)=>{const s=el('select');opts.forEach(o=>{const x=Array.isArray(o)?o:[o,o];const op=el('option','',x[1]);op.value=x[0];s.append(op)});s.value=v;return s};
+const check=(host,text,get,set,sub)=>{const l=el('label','k');const i=el('input');i.type='checkbox';i.checked=!!get();i.onchange=()=>set(i.checked);l.append(i,el('span','',text));host.append(l);if(sub)host.append(el('div','mu sm',sub))};
+function formBar(m,okText,onOk,onCancel){const b=el('div','bar2');b.append(btn('Отмена',()=>{ed=null;(onCancel||render)();render()},'ghost'),btn(okText,onOk,'pri'));m._bar=b}
+function formTop(m,t){const d=el('div','top');d.append(el('h2','',t));m.append(d)}
+const cmdOpts=['mute','jail','rmute','ban','sban','warn'];
+const fmtT=r=>rng(r);
+/* ================= ГЛАВНАЯ ================= */
+let jrAll=[];function jl(){try{jrAll=JSON.parse(A&&A.jList?A.jList():'[]')||[]}catch(e){jrAll=[]}}
+const ymd=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+let stRefs=null;
+function pHome(m){
+ /* --- шапка: готовность и запуск --- */
+ const hero=el('div','card hcard');const hl=el('div','hl');const hs=el('div','hst','Проверяю…'),hsub=el('div','mu sm','');hl.append(hs,hsub);hero.append(hl);
+ stHead={hs,hsub};
+ const hr=el('div','hero');hr.append(btn('Запустить значок',()=>act('startOverlay'),'pri'),btn('Остановить всё',()=>{act('stopAll');setTimeout(updSt,600)},'no'));hero.append(hr);m.append(hero);
+ /* --- сегодня и неделя --- */
+ jl();const days=[];for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);days.push(ymd(d))}
+ const cnt=(d,k)=>jrAll.filter(x=>x.d===d&&(!k||x.k===k)).length;
+ const K=[['rep','Репорты','#7c9cff'],['pun','Наказания','#d2515f'],['fv','ФВ','#2fa878']];
+ const j=el('div','card');j.append(el('h3','','Сегодня'));const kp=el('div','kp');
+ K.forEach(([k,t,col])=>{const d=el('div');d.style.borderTop='3px solid '+col;d.append(el('div','mu sm',t),el('div','n',cnt(days[6],k)),el('div','mu xs','за неделю '+days.reduce((a,x)=>a+cnt(x,k),0)));kp.append(d)});j.append(kp);
+ const tot=d=>K.map(([k])=>cnt(d,k)),mx=Math.max(1,...days.map(d=>cnt(d)));
+ const wk=el('div','wk');days.forEach(d=>{const x=el('div'),b=el('div','bar');b.style.height=Math.max(3,Math.round(cnt(d)/mx*52))+'px';
+  K.forEach(([k,,col])=>{const n=cnt(d,k);if(n){const q=el('i');q.style.height=(n/cnt(d)*100)+'%';q.style.background=col;b.append(q)}});
+  if(!cnt(d))b.style.background='var(--el2)';
+  x.append(el('small','',String(cnt(d)||'')),b,el('small',d===days[6]?'tdy':'',['вс','пн','вт','ср','чт','пт','сб'][new Date(d+'T12:00:00').getDay()]));wk.append(x)});j.append(wk);
+ /* время работы и очередь */
+ let pt=null;try{pt=JSON.parse(A.play())}catch(e){}
+ const tl=el('div','kv');
+ const fd=ms=>{const t=Math.max(0,Math.round(ms/60000)),h=Math.floor(t/60),mm=t%60;return h?h+' ч '+mm+' мин':mm+' мин'};
+ if(pt&&pt.h&&pt.h.length)tl.append(el('div','',''),(()=>{const d=el('div');d.append(el('span','mu','Работал сегодня'),el('b','',fd(pt.h[0]||0)));return d})());
+ const avg=Math.round(days.reduce((a,d)=>a+cnt(d),0)/7*10)/10;
+ {const d=el('div');d.append(el('span','mu','В среднем в день'),el('b','',String(avg)));tl.append(d)}
+ j.append(tl);j.append(el('div','mu sm','Подробный журнал — на вкладке «Журнал» клавиатуры GM.'));m.append(j);
+ /* --- готовность: шаги --- */
+ const c=el('div','card');c.append(el('h3','','Готовность'));stRefs={};
+ const step=(key,title,sub,label,a,a2)=>{const d=el('div','step'),i=el('div','st','·'),t=el('div','t');t.append(el('b','',title),el('small','',sub));d.append(i,t);
+  const b=btn(label,()=>act(a),'sm');d.append(b);stRefs[key]={i,b,label,a,a2};c.append(d)};
+ step('overlay','Поверх других приложений','Нужно для значка и всплывающих окон','Разрешить','overlayPerm');
+ step('ime','Клавиатура GM включена','Настройки → Язык и ввод','Включить','imeSettings');
+ step('imeSel','Клавиатура выбрана','Выбирай её перед открытием чата игры','Выбрать','imePicker');
+ step('bubble','Значок и окна слежки','Нажатие на значок — веер: скриншот, запись, область чтения','Запустить','startOverlay','stopOverlay');
+ step('catcher','Ловец репортов','Читает чат на экране (запись экрана)','Запустить','startCapture','stopCapture');
+ m.append(c);
+ /* --- как пользоваться --- */
+ const h=el('div','card tips');h.append(el('h3','','Как это работает'));
+ [['Репорт пришёл','Окно появится поверх игры: ответ одним касанием или своим текстом, слежка, ТП, «На помощь» с ником в админ-чат. Окно не закрывается после ответа — закрой «Готово ›».'],
+  ['Форма от админа','Придёт отдельной карточкой: «Принять» подпишет и вставит команду, «Отказать» уберёт.'],
+  ['Слежка','В окне слежки — быстрые команды и поле для ответа игроку. Кнопки настраиваются: Команды → Кнопки окон.'],
+  ['Область чтения','Значок → веер → «Область чтения»: обведи часть экрана, где идёт чат.']].forEach(([t,x])=>{const d=el('div','tip');d.append(el('b','',t),el('span','mu sm',x));h.append(d)});
+ m.append(h);
+ updSt()}
+let stHead=null;
+function updSt(){if(tab!=='h'||!stRefs)return;let s=null;try{s=JSON.parse(A.status())}catch(e){}
+ const up=(k,ok,txt)=>{const r=stRefs[k];if(!r)return;r.i.className='st'+(ok?' ok':'');r.i.textContent=ok?'✓':'·';
+  if(k==='bubble'||k==='catcher'){r.b.textContent=ok?'Остановить':r.label;r.b.onclick=()=>{act(ok?r.a2:r.a);setTimeout(updSt,700)}}else{r.b.textContent=ok?'Готово':r.label;r.b.style.opacity=ok?.55:1}};
+ if(!s){['overlay','ime','imeSel','bubble','catcher'].forEach(k=>up(k,false));if(stHead){stHead.hs.textContent='Демо-режим';stHead.hsub.textContent='Открой приложение на телефоне — здесь покажется состояние'}$('#sub').textContent='демо-режим (без телефона)';return}
+ up('overlay',s.overlay);up('ime',s.ime);up('imeSel',s.imeSel);up('bubble',s.bubble);up('catcher',s.catcher);
+ if(stHead){const ks=['overlay','ime','imeSel','bubble','catcher'],ok=ks.filter(k=>s[k]).length;stHead.hs.textContent=ok===5?'Всё готово к работе':'Готово '+ok+' из 5';stHead.hs.style.color=ok===5?'var(--ok)':'var(--wr)';stHead.hsub.textContent=ok===5?(s.pend?'Репортов без ответа: '+s.pend:'Репортов без ответа нет'):'Включи недостающее ниже, значок и ловец запускаются кнопками'}$('#sub').textContent='версия '+(s.ver||'')+(s.pend?' · без ответа: '+s.pend:'')+(s.catcher?' · ловец: '+s.ocr:'')}
+/* ================= ПРАВИЛА ================= */
+function pRules(m){
+ if(ed&&edKind==='rule')return fRule(m);if(ed&&edKind==='point')return fPoint(m);if(ed&&edKind==='bulk')return fBulk(m);
+ const top=el('div','top');top.append(el('h2','','Правила'),btn('＋ Правило',()=>{ed={n:'',cat:rcat==='Все'?'':rcat,_new:1};edKind='rule';render(true)},'pri sm'));m.append(top);
+ const q=inp(rq,'поиск по пунктам и словам…');q.oninput=()=>{rq=q.value;draw()};m.append(q);
+ const cs=el('div','chipsx');['Все',...catsOf(rules)].forEach(c=>cs.append(chip(c,()=>{rcat=c;render()},c===rcat)));m.append(cs);
+ const box=el('div');m.append(box);
+ const note=el('div','mu sm');note.style.margin='4px 2px 12px';note.textContent='Правило — раздел со своей категорией, внутри — пункты (нарушение, команда, срок). ▲▼ меняют порядок, он же показывается в клавиатуре.';m.append(note);
+ function draw(){box.innerHTML='';const s=norm(rq);let n=0;const vis=x=>rcat==='Все'||x.cat===rcat;
+  rules.forEach((ru,ri)=>{if(!vis(ru))return;
+   const all=reasons.filter(r=>r.rid===ru.id),pts=s?all.filter(r=>norm(r.n+' '+r.kw.join(' ')+' '+r.note+' '+r.txt+' '+r.pt).includes(s)):all;if(s&&!pts.length)return;n++;
+   const open=s||ropen.has(ru.id),c=el('div','card rule'),h=el('div','rh'),t=el('div','rt');
+   t.append(el('b','',ru.n));const mt=el('div','meta');mt.append(el('span','tag',ru.cat),el('span','mu sm',all.length+' пунктов'));t.append(mt);
+   t.onclick=()=>{ropen.has(ru.id)?ropen.delete(ru.id):ropen.add(ru.id);draw()};
+   h.append(t,ib('▲',()=>{if(moveIn(rules,ru,-1,vis)){saveModel();draw()}}),ib('▼',()=>{if(moveIn(rules,ru,1,vis)){saveModel();draw()}}),ib('✎',()=>{ed=JSON.parse(JSON.stringify(ru));edKind='rule';render(true)}),
+    two('✕',()=>{rules=rules.filter(x=>x!==ru);reasons=reasons.filter(r=>r.rid!==ru.id);saveModel();toast('Правило удалено');draw()}));c.append(h);
+   if(open){
+    if(!pts.length)c.append(el('div','pt mu sm',all.length?'Ничего не найдено.':'Пока нет пунктов — добавь ниже.'));
+    pts.forEach(r=>{const d=el('div','pt'),nm=el('div','nm');nm.append(el('div','',r.n));if(r.note||r.txt)nm.append(el('small','',r.note||r.txt.slice(0,70)));
+     const ac=el('div','acts');d.append(el('span','pn',r.pt||'•'),nm,el('span','tag '+r.cmd,fmtT(r)));
+      ac.append(ib('▲',()=>{if(moveIn(reasons,r,-1,x=>x.rid===ru.id)){saveModel();draw()}}),ib('▼',()=>{if(moveIn(reasons,r,1,x=>x.rid===ru.id)){saveModel();draw()}}),
+      ib('✎',()=>{ed=JSON.parse(JSON.stringify(r));ed._o=r.id;edKind='point';render(true)}),two('✕',()=>{reasons=reasons.filter(z=>z!==r);saveModel();draw()}));d.append(ac);c.append(d)});
+    if(!s)c.append(quickAdd(ru,ri,all.length,draw))}
+   box.append(c)});
+  if(!n)box.append(el('div','empty','Ничего нет.'))}
+ draw()}
+/* быстрое добавление: по одному пункту — номер, название, команда, срок — и сразу следующий */
+function quickAdd(ru,ri,n,draw){const q=el('div','qa'),qs=qaCmd[ru.id]||{cmd:'mute'};
+ const g=el('div','grid'),no=inp((ri+1)+'.'+(n+1),'№'),nm=inp('','Новый пункт: название (оно же причина)');nm.dataset.qa=ru.id;g.append(no,nm);q.append(g);
+ const g3=el('div','g3'),cm=sel(cmdOpts,qs.cmd),a=inp('','срок от','number'),b=inp('','срок до','number');cm.onchange=()=>{qaCmd[ru.id]={cmd:cm.value}};g3.append(cm,a,b);q.append(g3);
+ const row=el('div');row.append(btn('＋ Добавить пункт',bt=>{const name=nm.value.trim();if(!name){nm.focus();toast('Впиши название пункта');return}
+   const p={id:uid('p'),rid:ru.id,pt:no.value.trim(),n:name,cat:ru.cat,cmd:cm.value,a:+a.value||0,b:+b.value||(+a.value||0),note:'',kw:[],x:'',txt:'',tm:[]};
+   reasons.push(p);saveModel();qaCmd[ru.id]={cmd:cm.value};toast('Добавлен: '+name);draw();setTimeout(()=>{const x=document.querySelector('[data-qa="'+ru.id+'"]');if(x)x.focus()},50)},'pri sm'),
+  btn('＋ Списком',()=>{ed={rid:ru.id,text:''};edKind='bulk';render(true)},'sm'));q.append(row);return q}
+function fRule(m){const c=el('div','card');formTop(m,ed._new?'Новое правило':'Правка правила');
+ const n=inp(ed.n,'Например: Правила чата'),cat=inp(ed.cat,'Например: Чат');cat.setAttribute('list','cl');const dl=el('datalist');dl.id='cl';catsOf(rules).forEach(x=>{const o=el('option');o.value=x;dl.append(o)});
+ field(c,'Название правила',n);field(c,'Категория',cat,'По категории правила фильтруются в списке и в клавиатуре.');c.append(dl);m.append(c);
+ formBar(m,'Сохранить',()=>{if(!n.value.trim()){toast('Впиши название');return}const cv=cat.value.trim()||n.value.trim();
+  if(ed._new){const ru={id:uid('r'),n:n.value.trim(),cat:cv};rules.push(ru);ropen.add(ru.id)}
+  else{const ru=rules.find(x=>x.id===ed.id);if(ru){ru.n=n.value.trim();ru.cat=cv;reasons.forEach(r=>{if(r.rid===ru.id)r.cat=cv})}}
+  saveModel();ed=null;toast('Сохранено');render()})}
+function fPoint(m){const c=el('div','card');formTop(m,ed._o?'Правка пункта':'Новый пункт');
+ const ru=sel(rules.map(x=>[x.id,x.n]),ed.rid),no=inp(ed.pt,'2.1'),n=inp(ed.n,'Название (оно же причина в команде)'),cm=sel(cmdOpts,ed.cmd),a=inp(ed.a||'','от','number'),b=inp(ed.b||'','до','number'),
+  tm=inp((ed.tm||[]).join(', '),'например 15, 20, 30'),note=inp(ed.note,'Примечание (рецидив, грубое нарушение…)'),txt=el('textarea'),kw=inp((ed.kw||[]).join(', '),'слова через запятую');
+ txt.rows=3;txt.value=ed.txt||'';txt.placeholder='Полный текст пункта — копируется кнопкой в «Правилах»';
+ field(c,'Правило',ru);const g=el('div','f2');g.append(no,n);g.style.gridTemplateColumns='90px 1fr';field(c,'Номер и название',g);
+ field(c,'Команда',cm);const f=el('div','f2');f.append(a,b);field(c,'Срок (мин для mute/jail/rmute, дни для ban/sban)',f);
+ field(c,'Главные сроки — до 3 кнопок в выдаче наказания',tm,'Эти значения идут первыми. Их можно отметить ★ и прямо при выдаче. Пусто — возьмутся быстрые значения в границах срока.');
+ field(c,'Примечание',note);field(c,'Текст пункта правил (необязательно)',txt);
+ const x=el('label','k');const xc=el('input');xc.type='checkbox';xc.checked=ed.x==='warn';x.append(xc,el('span','','+ дополнительно выдать варн'));c.append(x);
+ const det=el('details');const sm=el('summary','','Ключевые слова из репортов');const dv=el('div');field(dv,'По ним причина подсказывается в репорте',kw);det.append(sm,dv);c.append(det);m.append(c);
+ formBar(m,'Сохранить',()=>{if(!n.value.trim()){toast('Впиши название');return}const rr=rules.find(z=>z.id===ru.value)||rules[0];
+  const o={id:ed._o||ed.id||uid('p'),rid:rr.id,pt:no.value.trim(),n:n.value.trim(),cat:rr.cat,cmd:cm.value,a:+a.value||0,b:+b.value||0,note:note.value.trim(),kw:kw.value.split(',').map(s=>s.trim()).filter(Boolean),x:xc.checked?'warn':'',txt:txt.value.trim(),tm:parseNums(tm.value,[]).slice(0,3).sort((p,q)=>p-q)};
+  const i=reasons.findIndex(z=>z.id===o.id);if(i>=0)reasons[i]=o;else reasons.push(o);ropen.add(rr.id);saveModel();ed=null;toast('Сохранено');render()})}
+function fBulk(m){const ru=rules.find(x=>x.id===ed.rid);const c=el('div','card');formTop(m,'Пункты списком · '+(ru?ru.n:''));
+ const ta=el('textarea');ta.rows=9;ta.value=ed.text;ta.placeholder='2.1 Оскорбление игрока | mute | 15-30\n2.2 Упоминание родных | mute | 90-180 | примечание\n2.3 Расизм | ban | 1-7';
+ const pv=el('div','mu sm');const upd=()=>{ed.text=ta.value;const n=parsePoints(ta.value,ru||{id:'',cat:''}).length;pv.textContent='Будет добавлено пунктов: '+n};ta.oninput=upd;upd();
+ field(c,'По одному пункту в строке',ta,'Формат: «номер название | команда | срок | примечание». Номер, команда, срок и примечание необязательны (по умолчанию mute). Срок: 30 или 15-30. Разделитель — | или ;');c.append(pv);m.append(c);
+ formBar(m,'Добавить',()=>{const L=parsePoints(ta.value,ru);if(!L.length){toast('Пусто');return}L.forEach(p=>reasons.push(p));saveModel();ed=null;toast('Добавлено: '+L.length);render()})}
+/* ================= КОМАНДЫ И ОТВЕТЫ ================= */
+function pCmds(m){
+ if(ed&&edKind==='cmd')return fCmd(m);if(ed&&edKind==='ans')return fAns(m);if(ed&&edKind==='btn')return fBtn(m);
+ const sg=el('div','seg');[['c','Команды'],['a','Ответы'],['b','Кнопки окон']].forEach(([k,t])=>{const b=el('button',k===csub?'on':'',t);b.onclick=()=>{csub=k;render()};sg.append(b)});m.append(sg);
+ if(csub==='a')return pAns(m);if(csub==='b')return pBtns(m);
+ const top=el('div','top');top.append(el('h2','','Команды'),btn('＋ Команда',()=>{ed={lv:lvv,cat:'Общее',l:'',t:'/',rp:'',pun:'',sp:0,_new:1};edKind='cmd';render(true)},'pri sm'));m.append(top);
+ const L=el('div','chipsx');[1,2,3,4,5].forEach(n=>L.append(chip(n+' ур · '+cmds.filter(c=>+c.lv===n).length,()=>{lvv=n;render()},n===lvv)));m.append(L);
+ const card=el('div','card');card.style.padding='0';card.style.overflow='hidden';m.append(card);const inCat=z=>+z.lv===lvv,list=cmds.filter(inCat);
+ if(!list.length)card.append(el('div','empty','Пока пусто — добавь свои команды.'));
+ list.forEach(c=>{const d=el('div','cr'),x=el('div','x'),b=el('b','',c.l);if(c.pun)b.append(' ',el('span','tag',c.pun));if(c.rp)b.append(' ',el('span','tag g','автоответ'));if(/\{t\}/.test(c.t))b.append(' ',el('span','tag a','ник/ID'));
+  x.append(b,el('code','',c.t));
+  const ac=el('div','acts');d.append(x,ac);ac.append(ib('Сл',()=>{c.sp=c.sp?0:1;saveCmds();toast(c.sp?'Будет в окне слежки':'Убрано из окна слежки');render()},c.sp?'on':'','Показывать в окне слежки'),
+   ib('▲',()=>{if(moveIn(cmds,c,-1,inCat)){saveCmds();render()}}),ib('▼',()=>{if(moveIn(cmds,c,1,inCat)){saveCmds();render()}}),
+   ib('✎',()=>{ed=JSON.parse(JSON.stringify(c));edKind='cmd';render(true)}),two('✕',()=>{cmds=cmds.filter(z=>z.id!==c.id);saveCmds();render()}));card.append(d)});
+ const t=el('div','mu sm');t.style.margin='0 2px 10px';t.innerHTML=' — команда показывается в окне, которое всплывает во время слежки. Порядок ▲▼ такой же, как на клавиатуре. В шаблоне {id} — ID, {t} — ID или ник (для команд вроде /id), {nickname} — ник.';m.append(t);
+ m.append(btn('Загрузить стандартный набор команд',b=>{if(b.dataset.s){cmds=DEF_CMDS();saveCmds();render()}else{b.dataset.s=1;b.textContent='Заменить текущие команды?'}},'ghost sm'))}
+function fCmd(m){const c=el('div','card');formTop(m,ed._new?'Новая команда':'Правка команды');
+ const lv=sel([1,2,3,4,5].map(n=>[n,'Уровень '+n]),ed.lv),l=inp(ed.l,'Название кнопки'),t=inp(ed.t,'Шаблон, например /sp {id}'),pun=sel([['','обычная команда'],...cmdOpts.map(x=>[x,'конструктор наказания: '+x])],ed.pun||''),
+  rp=sel([['','без автоответа'],['sp','автоответ как у слежки'],['tp','автоответ как у телепорта'],['spawn','автоответ как у спавна']],ed.rp||'');
+ field(c,'Уровень',lv,'Команда не прячется, если уровня не хватает: на клавиатуре она уйдёт запросом в админ-чат.');field(c,'Название',l);field(c,'Шаблон',t);
+ const vr=el('div','chips');vr.style.marginTop='8px';[['{id}','ID'],['{t}','ID или ник'],['{nickname}','ник'],['{time}','срок'],['{other}','своё']].forEach(([v,n])=>vr.append(btn(v+' '+n,()=>{t.value+=(t.value&&!/\s$/.test(t.value)?' ':'')+v},'sm')));c.append(vr,
+  el('div','mu sm','{id} — ID игрока · {t} — ID, а если его нет, ник (для команд, которые принимают и то и другое, например /id) · {nickname} — ник · {time} — срок (спросит) · {other} — своё значение из настроек (спросит). Шаблон с пробелом в конце вставляется без отправки.'));
+ field(c,'Тип',pun);field(c,'Автоответ на репорт',rp);
+ const ov=el('textarea');ov.rows=3;ov.value=(ed.ov||[]).join('\n');ov.placeholder='По одному в строке. Появятся кнопками при вводе команды';field(c,'Значения для {other}',ov,'Нужны, если в шаблоне есть {other}. Новые значения можно добавлять и прямо на клавиатуре при вводе команды (кнопка «Запомнить»).');
+ check(c,'Показывать в окне слежки',()=>ed.sp,v=>{ed.sp=v?1:0});m.append(c);
+ formBar(m,'Сохранить',()=>{if(!l.value.trim()||!t.value.trim()){toast('Заполни название и шаблон');return}const o={id:ed.id||uid('c'),lv:+lv.value,cat:ed.cat||'Общее',l:l.value.trim(),t:t.value.replace(/^\s+/,''),rp:rp.value,pun:pun.value,sp:ed.sp?1:0,ov:ov.value.split('\n').map(x=>x.trim()).filter(Boolean).slice(0,40)};
+  const i=cmds.findIndex(z=>z.id===o.id);if(i>=0){if(+cmds[i].lv===o.lv)cmds[i]=o;else{cmds.splice(i,1);cmds.push(o)}}else cmds.push(o);saveCmds();lvv=o.lv;ed=null;toast('Сохранено');render()})}
+function pAns(m){const cats=ansCats(ans);if(!acat||!cats.includes(acat))acat=cats[0]||'Общее';
+ const top=el('div','top');top.append(el('h2','','Ответы на репорт'),btn('＋ Ответ',()=>{ed={l:'',t:'',c:acat,_new:1};edKind='ans';render(true)},'pri sm'));m.append(top);
+ const cs=el('div','chipsx');cats.forEach(c=>cs.append(chip(c,()=>{acat=c;render()},c===acat)));m.append(cs);
+ const card=el('div','card');card.style.padding='0';card.style.overflow='hidden';m.append(card);const L=ans.filter(a=>a.c===acat);if(!L.length)card.append(el('div','empty','В этой группе пусто.'));
+ L.forEach(a=>{const d=el('div','cr'),x=el('div','x');x.append(el('b','',a.l));const p=el('div','mu sm',a.t);p.style.marginTop='2px';x.append(p);
+  d.append(x,ib('▲',()=>{if(moveIn(ans,a,-1,z=>z.c===acat)){saveAns();render()}}),ib('▼',()=>{if(moveIn(ans,a,1,z=>z.c===acat)){saveAns();render()}}),
+   ib('✎',()=>{ed=JSON.parse(JSON.stringify(a));ed._o=a.k;edKind='ans';render(true)}),two('✕',()=>{ans=ans.filter(z=>z!==a);saveAns();render()}));card.append(d)});
+ m.append(el('div','mu sm','Эти ответы показываются на клавиатуре в окне репорта (кнопка « Ответы»). Подсказки  подбираются по словам в репорте.'));
+ const r=btn('Загрузить стандартные ответы',b=>{if(b.dataset.s){ans=DEF_ANS();saveAns();render()}else{b.dataset.s=1;b.textContent='Заменить текущие ответы?'}},'ghost sm');r.style.marginTop='10px';m.append(r)}
+function fAns(m){const c=el('div','card');formTop(m,ed._new?'Новый ответ':'Правка ответа');
+ const l=inp(ed.l,'Короткое название кнопки'),cat=inp(ed.c,'Группа');cat.setAttribute('list','al');const dl=el('datalist');dl.id='al';ansCats(ans).forEach(x=>{const o=el('option');o.value=x;dl.append(o)});
+ const t=el('textarea');t.rows=4;t.value=ed.t;t.placeholder='Текст, который уйдёт игроку в /ans';
+ field(c,'Название',l);field(c,'Группа',cat);c.append(dl);field(c,'Текст ответа',t);m.append(c);
+ formBar(m,'Сохранить',()=>{if(!l.value.trim()||!t.value.trim()){toast('Заполни название и текст');return}const o={k:ed._o||uid('a'),l:l.value.trim(),t:t.value.trim(),c:cat.value.trim()||'Общее'};
+  const i=ans.findIndex(z=>z.k===o.k);if(i>=0)ans[i]=o;else ans.push(o);acat=o.c;saveAns();ed=null;toast('Сохранено');render()})}
+
+/* ===== Кнопки всплывающих окон (репорт и слежка): своё название и цепочка действий ===== */
+function pBtns(m){
+ const sg=el('div','seg');[['rep','Окно репорта'],['spec','Окно слежки']].forEach(([k,t])=>{const b=el('button',k===bsub?'on':'',t);b.onclick=()=>{bsub=k;render()};sg.append(b)});m.append(sg);
+ const top=el('div','top');top.append(el('h2','',bsub==='rep'?'Кнопки окна репорта':'Кнопки окна слежки'),btn('＋ Кнопка',()=>{ed={id:'',l:'',s:[],c:'',_new:1};edKind='btn';render(true)},'pri sm'));m.append(top);
+ const card=el('div','card');card.style.padding='0';card.style.overflow='hidden';m.append(card);
+ const L=btns[bsub];if(!L.length)card.append(el('div','empty','Кнопок нет — добавь свою.'));
+ L.forEach(b=>{const d=el('div','cr'),x=el('div','x'),h=el('b','',b.l);if(b.c)h.append(' ',el('span','tag '+(b.c==='ac'?'a':b.c==='ok'?'g':''),{ac:'акцент',ok:'зелёная',wr:'оранж.',er:'красная'}[b.c]||''));
+  x.append(h,el('code','',b.s.join('  →  ')||'нет действий'));
+  d.append(x,ib('▲',()=>{if(moveIn(L,b,-1)){saveBtns();render()}}),ib('▼',()=>{if(moveIn(L,b,1)){saveBtns();render()}}),
+   ib('✎',()=>{ed=JSON.parse(JSON.stringify(b));ed._o=b.id;edKind='btn';render(true)}),two('✕',()=>{btns[bsub]=L.filter(z=>z!==b);saveBtns();render()}));card.append(d)});
+ const t=el('div','mu sm');t.style.margin='0 2px 10px';t.textContent=bsub==='rep'
+  ?'Эти кнопки показываются в окне, которое всплывает при новом репорте (и в клавиатуре на вкладке «Репорты»). Одна кнопка — несколько действий подряд: например «Слежка» = ответ автору + /sp. После нажатия репорт считается отвеченным.'
+  :'Эти кнопки показываются в окне во время слежки. Если слежку начали из окна репорта, над кнопками появятся быстрые ответы автору — отвечать можно, не открывая клавиатуру.';
+ m.append(t);
+ m.append(btn('Вернуть кнопки по умолчанию',b=>{if(b.dataset.s){btns[bsub]=DEF_BTNS()[bsub];saveBtns();render()}else{b.dataset.s=1;b.textContent='Заменить текущие кнопки?'}},'ghost sm'))}
+function fBtn(m){const c=el('div','card');formTop(m,ed._new?'Новая кнопка':'Правка кнопки');
+ const l=inp(ed.l,'Название на кнопке'),ta=el('textarea');ta.rows=5;ta.value=(ed.s||[]).join('\n');ta.placeholder='По одному действию в строке, например:\n@ans:sp\n/sp {id}\n/flip {id}';
+ const sync=()=>{ed.l=l.value;ed.s=ta.value.split('\n').map(x=>x.trim()).filter(Boolean)};
+ field(c,'Название',l);field(c,'Действия — выполняются по порядку',ta,'Команда с подстановками: {id} — цель (нарушитель или тот, за кем следишь), {rep} — автор репорта, {nickname} — ник. Особые шаги: @ans:sp / @ans:tp / @ans:spawn / @ans:pun — автоответ автору из настроек; @ans свой текст — свой ответ автору; @help — позвать на помощь (/a); @spoff — выйти из слежки. Если не хватает уровня, команда уйдёт запросом в админ-чат.');
+ const vr=el('div','chips');vr.style.marginTop='8px';['/sp {id}','/spoff','/goto {id}','/gethere {id}','/spawn {id}','/flip {id}','/fixcar {id}','/stats {id}','/weap {id}','/hp {id} 100','@ans:sp','@ans:tp','@ans:spawn','@ans:pun','@ans Приветствую, проверю.','@help'].forEach(v=>vr.append(btn(v,()=>{ta.value+=(ta.value&&!/\n$/.test(ta.value)?'\n':'')+v},'sm')));c.append(el('div','lbl','Добавить действие'),vr);
+ const cc=el('div','chips');[['','Обычная'],['ac','Акцент'],['ok','Зелёная'],['wr','Оранжевая'],['er','Красная']].forEach(([k,t])=>cc.append(chip(t,()=>{sync();ed.c=k;render()},(ed.c||'')===k)));c.append(el('div','lbl','Цвет'),cc);m.append(c);
+ formBar(m,'Сохранить',()=>{sync();if(!ed.l.trim()||!ed.s.length){toast('Впиши название и хотя бы одно действие');return}
+  const o={id:ed._o||ed.id||uid('b'),l:ed.l.trim(),s:ed.s,c:ed.c||''};const L=btns[bsub],i=L.findIndex(z=>z.id===o.id);if(i>=0)L[i]=o;else L.push(o);saveBtns();ed=null;toast('Сохранено');render()})}
+/* ================= НАСТРОЙКИ ================= */
+const readCrop=()=>{try{return(A&&A.cropGet?A.cropGet():cfg.crop)||DEF_CFG.crop}catch(e){return DEF_CFG.crop}};
+const parseCrop=s=>{const p=String(s).split(',').map(x=>parseFloat(x));return p.length===4&&p.every(x=>x>=0&&x<=1)&&p[2]-p[0]>=.02&&p[3]-p[1]>=.02?p:null};
+const writeCrop=s=>{if(!parseCrop(s))return false;try{if(A&&A.cropSet)return !!A.cropSet(s)}catch(e){}cfg.crop=s;saveCfg();return true};
+let cropNow='';
+const sameCrop=(a,b)=>{const x=parseCrop(a),y=parseCrop(b);return !!(x&&y&&x.every((v,i)=>Math.abs(v-y[i])<.006))};
+const near=(opts,v)=>opts.reduce((a,o)=>Math.abs(o[0]-v)<Math.abs(a[0]-v)?o:a,opts[0])[0];
+/* строительные блоки настроек */
+const scard=(host,t,sub)=>{const c=el('div','card scard'),h=el('div','sh');h.append(el('h3','',t));if(sub)h.append(el('small','',sub));c.append(h);host.append(c);return c};
+const srow=(host,title,sub,ctl,stack)=>{const r=el('div','sr'+(stack?' stack':'')),t=el('div','sx');t.append(el('b','',title));if(sub)t.append(el('small','',sub));r.append(t);if(ctl)r.append(ctl);host.append(r);return r};
+const sswitch=(get,set)=>{const l=el('label','sw'),i=el('input');i.type='checkbox';i.checked=!!get();i.onchange=()=>set(i.checked);l.append(i,el('i'));return l};
+const sseg=(opts,val,set,full)=>{const s=el('div','sg'+(full?' full':''));opts.forEach(([v,t])=>{const b=el('button',v===val?'on':'',t);b.onclick=()=>{set(v);[...s.children].forEach(x=>x.classList.remove('on'));b.classList.add('on')};s.append(b)});return s};
+const sfold=(host,title,build)=>{const d=el('details','sd'),s=el('summary','',title),b=el('div');d.append(s,b);build(b);host.append(d);return d};
+const stext=(v,ph,on)=>{const i=inp(v,ph);i.onchange=()=>on(i);return i};
+const snum=(v,ph,on)=>{const i=inp(v,ph,'number');i.className='num';i.onchange=()=>on(i);return i};
+const sslider=(host,title,sub,min,max,get,set,unit)=>{const v=el('span','sv',get()+unit),r=srow(host,title,sub,v);r.style.flexWrap='wrap';const s=el('input');s.style.flex='0 0 100%';s.type='range';s.min=min;s.max=max;s.value=get();s.oninput=()=>{set(+s.value);v.textContent=s.value+unit};s.onchange=saveCfg;r.append(s)};
+
+/* схема экрана с выбранной областью чтения */
+function cropPreview(host,cur){
+ const wrap=el('div','cp'),fr=el('div','cpf'),rc=el('div','cpr');
+ rc.style.cssText='left:'+cur[0]*100+'%;top:'+cur[1]*100+'%;width:'+(cur[2]-cur[0])*100+'%;height:'+(cur[3]-cur[1])*100+'%';
+ [78,92,64].forEach(w=>{const i=el('i');i.style.width=w+'%';rc.append(i)});fr.append(rc,el('span','cpt','экран'));wrap.append(fr);
+ const pc=x=>Math.round(x*100);
+ wrap.append(el('div','cpn',pc(cur[2]-cur[0])+'% ширины × '+pc(cur[3]-cur[1])+'% высоты · от левого края '+pc(cur[0])+'%, от верха '+pc(cur[1])+'%'));host.append(wrap)}
+
+function pSet(m){
+ cropNow=readCrop();const cur=parseCrop(cropNow)||parseCrop(DEF_CFG.crop);
+ /* ---- профиль ---- */
+ const p=scard(m,'Профиль');
+ srow(p,'Мой игровой ник','Свои запросы в админ-чат не показываются как формы. Подпись принятой формы — «| A.Danielle».',stext(cfg.admNick,'Artem_Danielle',i=>{cfg.admNick=i.value.trim().replace(/[^A-Za-z0-9_]/g,'');i.value=cfg.admNick;saveCfg()}),true);
+ srow(p,'Мой уровень админки','Команды выше уровня уходят запросом в админ-чат, а формы без прав показываются с пометкой.',sseg([1,2,3,4,5].map(n=>[n,String(n)]),+cfg.lvl,v=>{cfg.lvl=v;saveCfg();$('#lv').textContent='Ур. '+v},true),true);
+ const tw=el('div','sws');Object.keys(THEMES).forEach(k=>{const t=THEMES[k],b=el('button','swc'+((cfg.theme||'teal')===k?' on':''));b.style.background='linear-gradient(135deg,'+t[1]+','+t[2]+')';b.title=t[0];b.onclick=()=>{cfg.theme=k;saveCfg();applyTheme(cfg);render()};tw.append(b)});
+ srow(p,'Тема','Цвет приложения, клавиатуры и всплывающих окон: '+(THEMES[cfg.theme||'teal']||THEMES.teal)[0].toLowerCase()+'.',tw,true);
+
+ /* ---- ловец ---- */
+ const c=scard(m,'Ловец репортов','Ловит репорты и формы из админ-чата и сразу показывает их окном. Работает по области экрана, которую ты выберешь.');
+ const ar=el('div','sr stack');ar.append(el('div','sx').appendChild(el('b','','Область чтения')).parentNode);cropPreview(ar,cur);
+ const ab=el('div','hero');ab.append(btn('Указать на экране',()=>act('pickCrop'),'pri'),btn('По умолчанию',()=>{writeCrop(DEF_CFG.crop);toast('Область сброшена');render()},'ghost'));ar.append(ab);
+ ar.append(el('div','mu sm','Откроется игра, а поверх неё — рамка: тяни за углы и края, середину двигай, пустое место — рисовать заново. Менять можно и из значка GM (кнопка «Область чтения»).'));
+ const pr=el('div','chips');[['Чат сверху',DEF_CFG.crop],['Слева снизу','0,0.55,0.55,1'],['Весь экран','0,0,1,1']].forEach(([t,x])=>pr.append(chip(t,()=>{writeCrop(x);render()},sameCrop(cropNow,x))));ar.append(pr);c.append(ar);
+ sfold(c,'Точные значения области, %',b=>{const g=el('div','cg');
+  const ins=['Слева','Сверху','Справа','Снизу'].map((n,i)=>{const w=el('label','cgi');w.append(el('small','',n));const x=el('input');x.type='number';x.inputMode='numeric';x.min=0;x.max=100;x.value=Math.round(cur[i]*100);w.append(x);g.append(w);return x});
+  const apply=()=>{const s=ins.map(x=>Math.max(0,Math.min(100,+x.value||0))/100).map(x=>x.toFixed(3)).join(',');if(writeCrop(s))render();else{ins.forEach(x=>x.style.borderColor='var(--er)');toast('Область слишком мала или перевёрнута')}};
+  ins.forEach(x=>x.onchange=apply);b.append(g)});
+  srow(c,'Только полные репорты','Ловить лишь строки вида «Ник[ID]: текст [К-во репорта: N]». Меньше мусора, но если распознавание ошибётся в хвосте, репорт пропустится — по умолчанию выключено.',sswitch(()=>!!cfg.strictOn,v=>{cfg.strictOn=v;saveCfg()}),true);
+ srow(c,'Формы админов','Показывать запросы команд из админ-чата. Выключи, если они не нужны или ловится лишнее.',sswitch(()=>cfg.forms!==false,v=>{cfg.forms=v;saveCfg()}),true);
+ srow(c,'Один репорт за раз','Пока окно репорта открыто, новые репорты не берутся — не набирается куча.',sswitch(()=>!!cfg.oneOn,v=>{cfg.oneOn=v;saveCfg()}),true);
+ srow(c,'Пауза после репорта','Сколько секунд после пойманного репорта новые игнорируются.',sseg([[0,'Нет'],[3,'3 с'],[6,'6 с'],[15,'15 с'],[30,'30 с']],near([[0],[3],[6],[15],[30]],+(cfg.pauseS||0)),v=>{cfg.pauseS=v;saveCfg()},true),true);
+ srow(c,'Скорость реакции','Как часто проверяется экран. Быстрее — репорт появляется раньше, но больше нагрузка.',sseg([[300,'Мгновенно'],[450,'Быстро'],[800,'Экономно']],near([[300],[450],[800]],+cfg.scan),v=>{cfg.scan=v;saveCfg()},true),true);
+ srow(c,'Страховочное чтение','Раз в несколько секунд читаются и светлые строки области — вдруг репорты окрашены иначе.',sseg([[0,'Выкл'],[3,'3 с'],[5,'5 с'],[10,'10 с']],near([[0],[3],[5],[10]],+cfg.fb),v=>{cfg.fb=v;saveCfg()},true),true);
+ srow(c,'Качество картинки','Меньше — холоднее телефон, но хуже читается мелкий текст.',sseg([[100,'Высокое'],[75,'Среднее'],[50,'Низкое']],near([[100],[75],[50]],+cfg.cscale),v=>{cfg.cscale=v;saveCfg()},true),true);
+ srow(c,'Язык текста','',sseg([['rus+eng','Рус + Eng'],['eng','Eng'],['rus','Рус']],cfg.lang,v=>{cfg.lang=v;saveCfg()},true),true);
+ const pre=el('pre','','Нажми «Показать», чтобы увидеть текст, который ловец прочитал с экрана.');
+ sfold(c,'Что видит ловец',b=>{const r=el('div','hero');r.append(btn('Показать',()=>{try{pre.textContent=A.lastOcr()||'(пока пусто)'}catch(e){}},'sm'),btn('Копировать',()=>{try{A.copy(pre.textContent);toast('Скопировано')}catch(e){}},'sm'));b.append(r,pre)});
+ c.append(el('div','mu sm snote','Область и качество применяются сразу; язык и качество картинки — после перезапуска ловца.'));
+
+ /* ---- расположение окон ---- */
+ const pw=scard(m,'Расположение окон','Где появляются значок GM, окно репорта и окно слежки. Выбираешь прямо на экране — как область чтения.');
+ const pb=el('div','hero');pb.append(btn('Указать на экране',()=>act('pickLayout'),'pri'),btn('Вниз по центру',()=>{try{A.setData('wpop','');A.setData('wspec','')}catch(e){};toast('Окна вернутся вниз по центру')},'ghost'));pw.append(pb);
+ pw.append(el('div','mu sm snote','Откроется игра, а поверх неё — значок и макеты окон: перетащи их пальцем и нажми «Сохранить». Окна репорта и слежки можно также двигать за шапку прямо во время работы — место запомнится.'));
+ /* ---- отправка ---- */
+ const s=scard(m,'Отправка и ответы');
+ srow(s,'Отправлять в чат сразу','После вставки сразу ⏎. Переключается и на клавиатуре кнопкой ⏎.',sswitch(()=>cfg.auto,v=>{cfg.auto=v;saveCfg()}));
+ srow(s,'Автоответ на репорт','Из окна репорта: сначала /ans автору, потом команда на нарушителя.',sswitch(()=>cfg.autoReply,v=>{cfg.autoReply=v;saveCfg()}));
+ srow(s,'Пауза между командами','Если игра не успевает закрыть чат между командами цепочки — увеличь.',sseg([[250,'250'],[500,'500'],[800,'800'],[1200,'1200']],near([[250],[500],[800],[1200]],+cfg.gap),v=>{cfg.gap=v;saveCfg()},true),true);
+ sfold(s,'Шаблоны и тексты автоответов',b=>{
+  field(b,'Кнопка «На помощь» — что отправлять в админ-чат',stext(cfg.aTpl,'/a {who} нужна помощь: {text}',i=>{cfg.aTpl=i.value.trim()||DEF_CFG.aTpl;i.value=cfg.aTpl;saveCfg()}),'{who} — ник[ID] автора репорта, {nick} — ник, {id} — ID, {text} — суть репорта. Что написать самому игроку («вопрос передан, ожидайте»), задаётся шагом «@ans текст» в этой же кнопке.');
+  field(b,'Запрос в админ-чат, если не хватает прав',stext(cfg.reqTpl,'/a {cmd}',i=>{cfg.reqTpl=i.value.includes('{cmd}')?i.value.trim():DEF_CFG.reqTpl;i.value=cfg.reqTpl;saveCfg()}),'{cmd} — сама команда, например «/a /mute 45 30 флуд».');
+  [['sp','После слежки'],['tp','После телепорта'],['spawn','После спавна'],['pun','После наказания']].forEach(([k,t])=>field(b,'Автоответ: '+t.toLowerCase(),stext(cfg.replies[k],'пусто — не отправлять',i=>{cfg.replies[k]=i.value;saveCfg()})))});
+ srow(s,'Кнопки окон репорта и слежки','Название и действия меняются: одна кнопка может ответить игроку, зайти в слежку и перевернуть машину.',btn('Настроить',()=>{tab='c';csub='b';ed=null;render(true)},'pri sm'));
+
+ /* ---- клавиатура ---- */
+ const k=scard(m,'Клавиатура GM','Высота применяется при следующем открытии. Менять можно и прямо на клавиатуре кнопкой ⇕.');
+ sslider(k,'Высота панели','',25,75,()=>cfg.kbh,v=>{cfg.kbh=v},'%');
+ sslider(k,'Высота при наборе букв','',22,60,()=>cfg.kbt,v=>{cfg.kbt=v},'%');
+
+ /* ---- данные ---- */
+ let bi={};try{bi=JSON.parse(A.backupInfo())}catch(e){}
+ const bk=scard(m,'Резервная копия','Один файл: правила, команды, ответы, кнопки окон, область чтения, настройки и журнал.');
+ const r1=el('div','sr stack'),h1=el('div','hero');h1.append(btn('Сохранить в файл',()=>act('backupSave'),'pri'),btn('Загрузить из файла',()=>act('backupLoad')));r1.append(h1);bk.append(r1);
+ srow(bk,'Автокопия, раз в N часов','0 — выключена. Работает, пока запущен значок.',snum(cfg.bkH||0,'0',i=>{cfg.bkH=Math.max(0,Math.min(720,+i.value||0));i.value=cfg.bkH;saveCfg()}));
+ srow(bk,'Последняя копия',(bi.last?new Date(bi.last).toLocaleString('ru-RU'):'ещё не делалась')+' · '+(bi.dir?'выбранная папка':'папка приложения'));
+ const r2=el('div','sr stack'),h2=el('div','hero');h2.append(btn('Копия сейчас',()=>act('backupRun'),'sm'),btn(bi.dir?'Другая папка':'Выбрать папку',()=>act('backupDir'),'sm'));if(bi.dir)h2.append(btn('Сбросить папку',()=>act('backupDirClear'),'sm ghost'));r2.append(h2);bk.append(r2);
+ srow(bk,'Стандартный набор','Готовые правила, команды и ответы — текущие будут заменены.',btn('Загрузить',b=>{if(b.dataset.s){const mm=normModel(null,null);rules=mm.rules;reasons=mm.reasons;cmds=DEF_CMDS();ans=DEF_ANS();saveModel();saveCmds();saveAns();toast('Загружено');render()}else{b.dataset.s=1;b.textContent='Заменить?'}},'sm ghost'));
+
+ /* ---- служебное ---- */
+ const ab2=scard(m,'О приложении');
+ let dt='';try{dt=A.diag()}catch(e){}const dp=el('pre','',dt||'Ошибок нет.');
+ sfold(ab2,'Диагностика (ошибки)',b=>{const r=el('div','hero');r.append(btn('Скопировать',()=>{try{A.copy(dp.textContent);toast('Скопировано')}catch(e){}},'sm'),btn('Очистить',()=>{try{A.diagClear()}catch(e){}dp.textContent='Ошибок нет.'},'sm'));b.append(dp,r)});
+ ab2.append(el('div','mu sm snote','Работает только на устройстве: интернета у приложения нет. Права: «Поверх других приложений» (значок, окна, рамка области), уведомления, запись экрана (только когда запускаешь ловец, скриншот или запись) и собственная клавиатура GM. К контактам, файлам, SMS и истории других приложений доступа нет. Новая версия ставится поверх старой.'))}
+window.addEventListener('focus',()=>{if(tab==='h')updSt();else if(tab==='s'&&!ed&&readCrop()!==cropNow)render()});
+setInterval(updSt,1500);
+render(true);
+</script></body></html>

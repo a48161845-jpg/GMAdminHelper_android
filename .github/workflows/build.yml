@@ -1,0 +1,42 @@
+name: Build APK
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      # Android SDK уже установлен на ubuntu-24.04 (ANDROID_HOME),
+      # поэтому android-actions/setup-android не нужен.
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.7'
+
+      # Файлы языков для распознавания (в .gitignore, поэтому в репозитории их нет)
+      - name: Download Tesseract language data
+        run: |
+          mkdir -p app/src/main/assets/tessdata
+          for l in rus eng; do
+            curl -fsSL -o app/src/main/assets/tessdata/$l.traineddata \
+              https://github.com/tesseract-ocr/tessdata_fast/raw/main/$l.traineddata
+          done
+          ls -l app/src/main/assets/tessdata
+
+      # Release-сборка с постоянным ключом app/gm.jks — ставится поверх предыдущей версии без удаления
+      - name: Build release APK
+        run: gradle assembleRelease --no-daemon --stacktrace
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: GMAdminHelper
+          path: app/build/outputs/apk/release/*.apk
